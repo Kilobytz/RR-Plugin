@@ -1,0 +1,14 @@
+name: NamboStuff
+version: 0.9
+author: Kilobytes
+main: io.github.Kilobytz.nambostuff.Main
+description: Kilobytes doesn't know what he's doing
+commands:
+  couple:
+  uncouple:
+  uncoupleall:
+  listcouple:
+  listallcouples:
+  couplehp:
+  couplehunger:
+  sync:
