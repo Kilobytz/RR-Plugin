@@ -15,9 +15,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 
@@ -33,16 +30,15 @@ public class PairEffects implements Listener {
     public void onPlayerDamage(EntityDamageEvent dmgEvent) {
         if (dmgEvent.getEntity() instanceof Player) {
             Player dmgedPlayer = (Player) dmgEvent.getEntity();
-            Double dmg = dmgEvent.getFinalDamage();
-            Boolean coupleCheck = pC.isPlayerCoupled(dmgedPlayer);
+            double dmg = dmgEvent.getFinalDamage();
+            boolean coupleCheck = pC.isPlayerCoupled(dmgedPlayer);
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(dmgedPlayer);
-                Boolean isCoupleSolo = pC.checkSoloCouple(couple);
+                boolean isCoupleSolo = pC.checkSoloCouple(couple);
                 if (isCoupleSolo) {
                     double hpToSet = couple.getHealth() - dmg;
                     if (hpToSet < 0) {
                         couple.setHealth(0);
-                        return;
                     }
                 }
             }
@@ -52,7 +48,7 @@ public class PairEffects implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player playerJoining = event.getPlayer();
-        Boolean coupleCheck = pC.isPlayerCoupled(playerJoining);
+        boolean coupleCheck = pC.isPlayerCoupled(playerJoining);
         if(coupleCheck) {
             double maxHP = pC.getMaxHP();
             playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
@@ -64,13 +60,12 @@ public class PairEffects implements Listener {
             playerJoining.setFoodLevel(20);
             playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             playerJoining.setHealth(20);
-            return;
         }
     }
     @EventHandler
     public void onPlayerSpawn(PlayerRespawnEvent event) {
         Player playerRespawning = event.getPlayer();
-        Boolean coupleCheck = pC.isPlayerCoupled(playerRespawning);
+        boolean coupleCheck = pC.isPlayerCoupled(playerRespawning);
         if(coupleCheck) {
 
             Player couple = pC.getCoupleOpposite(playerRespawning);
@@ -80,7 +75,7 @@ public class PairEffects implements Listener {
     @EventHandler
     public void onGamemodeChange(PlayerGameModeChangeEvent event) {
         Player playerChangingGamemode = event.getPlayer();
-        Boolean coupleCheck = pC.isPlayerCoupled(playerChangingGamemode);
+        boolean coupleCheck = pC.isPlayerCoupled(playerChangingGamemode);
         if(coupleCheck) {
             GameMode newMode = event.getNewGameMode();
             GameMode survival = GameMode.SURVIVAL;
@@ -98,7 +93,7 @@ public class PairEffects implements Listener {
             boolean coupleCheck = pC.isPlayerCoupled(healedPlayer);
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(healedPlayer);
-                Boolean isCoupleSolo = pC.checkSoloCouple(couple);
+                boolean isCoupleSolo = pC.checkSoloCouple(couple);
                 if(isCoupleSolo){
                     double hpToSet = couple.getHealth() + heal;
                     double maxHP = pC.getMaxHP();
@@ -106,7 +101,6 @@ public class PairEffects implements Listener {
                         hpToSet = maxHP;
                     }
                     couple.setHealth(hpToSet);
-                    return;
                 }
             }
 
@@ -123,7 +117,7 @@ public class PairEffects implements Listener {
             boolean coupleCheck = pC.isPlayerCoupled(hungerPlayer);
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(hungerPlayer);
-                Boolean isCoupleSolo = pC.checkSoloCouple(couple);
+                boolean isCoupleSolo = pC.checkSoloCouple(couple);
                 if(isCoupleSolo) {
                     hungerPlayer.sendMessage("hunger event");
                     int playerFood = hungerPlayer.getFoodLevel();
@@ -132,7 +126,7 @@ public class PairEffects implements Listener {
                     float coupleSaturation = couple.getSaturation();
                     couple.setFoodLevel(foodEventFood);
                     hungerPlayer.setFoodLevel(foodEventFood);
-                    hungerPlayer.setSaturation(playerSaturation);   //add reduced regen
+                    hungerPlayer.setSaturation(playerSaturation);
                     couple.setSaturation(playerSaturation);
                 }
             }
