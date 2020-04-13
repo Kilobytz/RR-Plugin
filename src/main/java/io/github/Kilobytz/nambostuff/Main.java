@@ -17,7 +17,6 @@ public class Main  extends JavaPlugin {
 
     PairConstructor pC = new PairConstructor(this);
     PairEffects pE = new PairEffects();
-    ItemEffects iE = new ItemEffects();
 
     @Override
     public void onEnable() {
@@ -71,15 +70,15 @@ public class Main  extends JavaPlugin {
                 boolean player1PairStatus = pC.isPlayerCoupled(player1);
                 boolean player2PairStatus = pC.isPlayerCoupled(player2);
 
-                if (player1PairStatus == true) {
-                    if(player2PairStatus == true) {
+                if (player1PairStatus) {
+                    if(player2PairStatus) {
                         playerSent.sendMessage(String.format("%1$sError. %2$s and %3$s is already coupled.", ChatColor.RED, potentialPlayer1, potentialPlayer2));
                         return true;
                     }
                     playerSent.sendMessage(String.format("%1$sError. %2$s is already coupled.", ChatColor.RED, potentialPlayer1));
                     return true;
                 }
-                if(player2PairStatus == true) {
+                if(player2PairStatus) {
                     playerSent.sendMessage(String.format("%1$sError. %2$s is already coupled.", ChatColor.RED, potentialPlayer2));
                     return true;
                 }
@@ -140,6 +139,8 @@ public class Main  extends JavaPlugin {
                 try {
                     boolean pairNullCheck = pC.arePairsNull();
                     if (pairNullCheck) {
+                        playerSent.sendMessage(String.format("%sError.", ChatColor.RED));
+                        return true;
                     }
                 }catch (IndexOutOfBoundsException e) {
                     playerSent.sendMessage(String.format("%sError. No couples added", ChatColor.RED));
@@ -166,6 +167,8 @@ public class Main  extends JavaPlugin {
                 try {
                     boolean pairNullCheck = pC.arePairsNull();
                     if (pairNullCheck) {
+                        playerSent.sendMessage(String.format("%sError.", ChatColor.RED));
+                        return true;
                     }
                 }catch (IndexOutOfBoundsException e) {
                     playerSent.sendMessage(String.format("%sError. No couples added", ChatColor.RED));
@@ -295,14 +298,14 @@ public class Main  extends JavaPlugin {
                     return true;
                 }
                 String hungerRaw = args[0].toLowerCase();
-                if(hungerRaw.equals(true)) {
-                    Boolean hunger = Boolean.parseBoolean(hungerRaw);
+                if(hungerRaw.equals("true")) {
+                    boolean hunger = Boolean.parseBoolean(hungerRaw);
                     pC.setHunger(hunger);
                     playerSent.sendMessage("Shared hunger has been enabled for couples.");
                     return true;
                 }
-                if(hungerRaw.equals(false)) {
-                    Boolean hunger = Boolean.parseBoolean(hungerRaw);
+                if(hungerRaw.equals("false")) {
+                    boolean hunger = Boolean.parseBoolean(hungerRaw);
                     pC.setHunger(hunger);
                     playerSent.sendMessage("Shared hunger has been disabled for couples.");
                     return true;
@@ -332,7 +335,7 @@ public class Main  extends JavaPlugin {
                     pC.syncStats(player2);
                     return true;
                 }
-                playerSent.sendMessage(String.format("%Error. This player is not coupled.", ChatColor.RED));
+                playerSent.sendMessage(String.format("%sError. This player is not coupled.", ChatColor.RED));
                 return true;
             }
             playerSent.sendMessage(String.format("%sI'm sorry, but you do not have permission to perform this command", ChatColor.RED));
