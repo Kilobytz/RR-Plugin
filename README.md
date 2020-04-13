@@ -11,3 +11,8 @@ Fix graphical bug with couples
 
 Fix commandblocks
 
+Clean up Main class
+
+Add config(?)
+
+Add toggleable hunger
