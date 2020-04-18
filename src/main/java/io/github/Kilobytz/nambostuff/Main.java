@@ -267,21 +267,22 @@ public class Main  extends JavaPlugin {
                     playerSent.sendMessage(String.format("%sInvalid format. Usage: /couplehp", ChatColor.RED));
                     return true;
                 }
-
-                if(args[0] == null) {
+                if(length == 0) {
                     Double hpCheck = pC.getMaxHP()/2;
-                    playerSent.sendMessage("Current couple HP is " + pC.getMaxHP() + " hearts. Use /couplehp (num) to set max Hearts.");
+                    playerSent.sendMessage("Current couple HP is " + pC.getMaxHP()/2 + " hearts. Use /couplehp (num) to set max Hearts.");
                     return true;
                 }
                 String hpNumRaw = args[0];
-                if(hpNumRaw.matches("^[0-9]*$")) {
+                try{
                     double hpNum = Double.parseDouble(hpNumRaw);
                     pC.setMaxHP(hpNum);
-                    playerSent.sendMessage("Max HP for couples has been set to " + hpNum + " hearts.");
+                    playerSent.sendMessage("Couple HP has been set to " + hpNum + " hearts.");
+                    return true;
+
+                }catch(NumberFormatException e) {
+                    playerSent.sendMessage(String.format("%sInvalid format. Usage: /couplehp", ChatColor.RED));
                     return true;
                 }
-                playerSent.sendMessage(String.format("%sInvalid format. Usage: /couplehp", ChatColor.RED));
-                return true;
             }
             playerSent.sendMessage(String.format("%sI'm sorry, but you do not have permission to perform this command", ChatColor.RED));
             return true;

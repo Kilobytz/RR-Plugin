@@ -1,8 +1,8 @@
-name: NamboStuff
-version: 0.9
+name: RR-Plugin
+version: 1.01
 author: Kilobytes
 main: io.github.Kilobytz.nambostuff.Main
-description: Kilobytes doesn't know what he's doing
+description: Plugin made by Kilobytes, requested by Nambo for the Random Randos Minecraft server, for Minecraft version 1.12.
 commands:
   couple:
   uncouple:

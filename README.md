@@ -16,3 +16,5 @@ Clean up Main class
 Add config(?)
 
 Add toggleable hunger
+
+Remake and simplify commands - use "/couple"  as a prefix
