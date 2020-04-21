@@ -1,14 +1,10 @@
-package io.github.Kilobytz.nambostuff;
+package io.github.Kilobytz.rrstuff;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import javafx.util.Pair;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -17,15 +13,15 @@ import static org.bukkit.Bukkit.getServer;
 
 public class PairConstructor {
 
-    private Main main;
+    private final Main main;
 
     public PairConstructor(Main main) {
         this.main = main;
     }
 
-    private ArrayList<UUID> paired1 = new ArrayList<UUID>();
-    private ArrayList<UUID> paired2 = new ArrayList<UUID>();
-    private HashMap<UUID, Integer> hungerLeader = new HashMap<UUID, Integer>();
+    private ArrayList<UUID> paired1 = new ArrayList<>();
+    private ArrayList<UUID> paired2 = new ArrayList<>();
+    private HashMap<UUID, Integer> hungerLeader = new HashMap<>();
     private boolean coupleHunger;
     private double maxHP;
 
@@ -43,8 +39,7 @@ public class PairConstructor {
         player2.setFoodLevel(20);
     }
     public Player getPlayerObject(UUID uuid) {
-        Player player = Bukkit.getPlayer(uuid);
-        return player;
+        return Bukkit.getPlayer(uuid);
     }
 
     public Integer getCoupleNumFromPlayer(Player player) {
@@ -58,35 +53,30 @@ public class PairConstructor {
         return null;
     }
     public String getDisplayNameFromUUID(UUID uuid) {
-        String playerName = getServer().getOfflinePlayer(uuid).getName();
-        return playerName;
+        return getServer().getOfflinePlayer(uuid).getName();
     }
     public Player getCoupleOpposite(Player player1) {
         UUID player1UUID = player1.getUniqueId();
         if(paired1.contains(player1UUID)) {
             int pairI = paired1.indexOf(player1UUID);
             UUID player2UUID = paired2.get(pairI);
-            Player player2 = getPlayerObject(player2UUID);
-            return player2;
+            return getPlayerObject(player2UUID);
         }
         if(paired2.contains(player1UUID)) {
             int pairI = paired2.indexOf(player1UUID);
             UUID player2UUID = paired1.get(pairI);
-            Player player2 = getPlayerObject(player2UUID);
-            return player2;
+            return getPlayerObject(player2UUID);
         }
         return null;
     }
     public UUID getCoupleOppositeUUID(UUID player1UUID) {
         if(paired1.contains(player1UUID)) {
             int pairI = paired1.indexOf(player1UUID);
-            UUID player2UUID = paired2.get(pairI);
-            return player2UUID;
+            return paired2.get(pairI);
         }
         if(paired2.contains(player1UUID)) {
             int pairI = paired2.indexOf(player1UUID);
-            UUID player2UUID = paired1.get(pairI);
-            return player2UUID;
+            return paired1.get(pairI);
         }
         return null;
     }
@@ -112,9 +102,7 @@ public class PairConstructor {
         if(player2Online) {
             player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             overMax(player2);
-            return;
         }
-        return;
     }
 
     public void overMax(Player player) {
@@ -127,95 +115,82 @@ public class PairConstructor {
         if(paired1.contains(uuid)) {
             return true;
         }
-        if(paired2.contains(uuid)) {
-            return true;
-        }
-        return false;
+        return paired2.contains(uuid);
     }
     public String getCoupleStatement(int coupleNumber) {
         UUID player1 = paired1.get(coupleNumber);
         UUID player2 = paired2.get(coupleNumber);
         String player1Name = getDisplayNameFromUUID(player1);
         String player2Name = getDisplayNameFromUUID(player2);
-        String fullCoupleStatement = "Couple Number: " + coupleNumber + ". Players: " + player1Name + " and " + player2Name + ".";
-        return fullCoupleStatement;
+        return "Couple Number: " + coupleNumber + ". Players: " + player1Name + " and " + player2Name + ".";
     }
     public UUID getCouple1(int coupleNum) {
-        UUID player1 = paired1.get(coupleNum);
-        return player1;
+        return paired1.get(coupleNum);
     }
     public UUID getCouple2(int coupleNum) {
-        UUID player2 = paired2.get(coupleNum);
-        return player2;
+        return paired2.get(coupleNum);
     }
     public int getPairNumbers() {
-        int pairNumbers = paired1.size();
-        return pairNumbers;
+        return paired1.size();
     }
-    public boolean arePairsNull() {
-        if(paired1.get(0).equals(null)) {
+    public boolean areCouplesEmpty() {
+        try {
+            return paired1.get(0) == null;
+
+        } catch (IndexOutOfBoundsException e) {
             return true;
         }
-        return false;
     }
 
     public void setMaxHP(double num) {
         int pairSize = paired1.size();
-        num = num*2;
-        if(num>1024) {
-            this.maxHP = 1024;
-            num = 1024;
-        }
-        else {
-            this.maxHP = num;
-        }
+        this.maxHP = num;
         for(int i = 0; i < pairSize; i++) {
             UUID player1UUID = paired1.get(i);
             UUID player2UUID = paired2.get(i);
             Player player1 = getPlayerObject(player1UUID);
             Player player2 = getPlayerObject(player2UUID);
-            Boolean player1Online = isCoupleOnline(player1UUID);
-            Boolean player2Online = isCoupleOnline(player2UUID);
+            boolean player1Online = isCoupleOnline(player1UUID);
+            boolean player2Online = isCoupleOnline(player2UUID);
             if (player1Online) {
-                player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
                 double p1HP = player1.getHealth();
-                if(p1HP >num) {
-                    player1.setHealth(p1HP);
+                player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+                if(p1HP > num) {
+                    player1.setHealth(num);
                 }
                 if (player2Online) {
-                    player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
                     double p2HP = player2.getHealth();
-                    if(p2HP >num) {
-                        player2.setHealth(p2HP);
+                    player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+                    if(p2HP > num) {
+                        player2.setHealth(num);
+                        return;
                     }
-                    return;
                 }
             }
             if (player2Online) {
-                player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
                 double p2HP = player2.getHealth();
-                if(p2HP >num) {
-                    player2.setHealth(p2HP);
+                player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+                if(p2HP > num) {
+                    player2.setHealth(num);
                 }
-                return;
             }
-            return;
         }
-        return;
 
     }
 
     public Double getMaxHP() {
         return maxHP;
     }
+
     public void setHunger(boolean hunger) {
         this.coupleHunger = hunger;
     }
+
     public boolean getHunger() {
         return coupleHunger;
     }
+
     public void syncStats(final Player player) {
-        try {
             final Player couple = getCoupleOpposite(player);
             if (!couple.isOnline()) {
                 return;
@@ -228,18 +203,14 @@ public class PairConstructor {
 
                 public void run() {
                     player.setHealth(hpToSet);
-                    Boolean hunger = getHunger();
+                    boolean hunger = getHunger();
                     if (hunger) {
                         int hungerToSet = couple.getFoodLevel();
                         player.setFoodLevel(hungerToSet);
-                        return;
                     }
-                    return;
                 }
             }, 10L);
-        }catch(NullPointerException e) {
-            return;
-        }
+
     }
     public boolean checkSoloCouple(Player couple) {
         try {
@@ -255,20 +226,14 @@ public class PairConstructor {
             if (playerGamemode.equals(creative)) {
                 return false;
             }
-            if (playerGamemode.equals(spectator)) {
-                return false;
-            }
-            return true;
+            return !playerGamemode.equals(spectator);
         }catch(NullPointerException e) {
             return false;
         }
     }
     public Boolean isCoupleOnline(UUID uuid) {
         Player player = getPlayerObject(uuid);
-        if(player == null) {
-            return false;
-        }
-        return true;
+        return player != null;
     }
 
 }
