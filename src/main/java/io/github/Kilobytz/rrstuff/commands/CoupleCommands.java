@@ -10,8 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 
-import static org.bukkit.Bukkit.getPlayerExact;
-import static org.bukkit.Bukkit.getServer;
+import static org.bukkit.Bukkit.*;
 
 public class CoupleCommands implements TabExecutor {
 
@@ -71,16 +70,23 @@ public class CoupleCommands implements TabExecutor {
                     sender.sendMessage(player1AddRaw + " and " + player2AddRaw + " have been coupled!");
                     player1Add.sendMessage("You have been coupled to " + player2AddRaw);
                     player2Add.sendMessage("You have been coupled to " + player1AddRaw);
-                    double maxHealth = pC.getMaxHP();
-                    int maxHunger = 20;
-                    float maxSaturation = 20;
-                    player1Add.setSaturation(maxSaturation);
-                    player1Add.setHealth(maxHealth);
-                    player1Add.setFoodLevel(maxHunger);
-                    player2Add.setSaturation(maxSaturation);
-                    player2Add.setHealth(maxHealth);
-                    player2Add.setFoodLevel(maxHunger);
+
+                    if(pC.getAddSync()) {
+                        pC.syncStats(player2Add);
+                    }
+                    else {
+                        double maxHealth = pC.getMaxHP();
+                        int maxHunger = 20;
+                        float maxSaturation = 20;
+                        player1Add.setSaturation(maxSaturation);
+                        player1Add.setHealth(maxHealth);
+                        player1Add.setFoodLevel(maxHunger);
+                        player2Add.setSaturation(maxSaturation);
+                        player2Add.setHealth(maxHealth);
+                        player2Add.setFoodLevel(maxHunger);
+                    }
                     return true;
+
                 case "list" :
                     if(args.length != 1) {
                         sender.sendMessage(String.format("%sInvalid usage. /couple list", ChatColor.RED));
@@ -105,7 +111,7 @@ public class CoupleCommands implements TabExecutor {
                     }
                 case "remove" :
                     if (args.length != 2) {
-                        sender.sendMessage(String.format("%sInvalid usage. /couple remove (couple-id)", ChatColor.RED));
+                        sender.sendMessage(String.format("%sInvalid usage. /couple remove (name/all)", ChatColor.RED));
                         return true;
                     }
                     if(pC.areCouplesEmpty()) {
@@ -115,8 +121,8 @@ public class CoupleCommands implements TabExecutor {
                     if(args[1].equalsIgnoreCase("all")) {
                         int pairNumbers = pC.getPairNumbers();
                         for (int i = 0; i < pairNumbers; i++) {
-                            UUID player1UUID = pC.getCouple1(0);
-                            UUID player2UUID = pC.getCouple2(0);
+                            UUID player1UUID = pC.getCouple1FromNum(0);
+                            UUID player2UUID = pC.getCouple2FromNum(0);
                             String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
                             String player2Name = getServer().getOfflinePlayer(player2UUID).getName();
                             boolean player1Online = pC.isCoupleOnline(player1UUID);
@@ -127,55 +133,50 @@ public class CoupleCommands implements TabExecutor {
                                 if (player2Online) {
                                     Player player2Obj = pC.getPlayerObject(player2UUID);
                                     player2Obj.sendMessage("You have been uncoupled from " + player1Name);
+                                    sender.sendMessage("Player "+ player1Name + " and " + player2Name + " couple has been dissolved.");
                                     pC.removeCouple(0);
                                     return true;
                                 }
                                 pC.removeCouple(0);
+                                sender.sendMessage("Player "+ player1Name + "'s couple has been dissolved.");
                                 return true;
                             }
                             if (player2Online) {
                                 Player player2Obj = pC.getPlayerObject(player2UUID);
                                 player2Obj.sendMessage("You have been uncoupled from " + player1Name);
+                                sender.sendMessage("Player " + player2Name + "'s couple has been dissolved.");
                                 pC.removeCouple(0);
                                 return true;
                             }
                         }
                     }
-                    try {
-                        int coupleNumber = Integer.parseInt(args[1]);
-                        try {
-                            UUID player1UUID = pC.getCouple1(coupleNumber);
-                            UUID player2UUID = pC.getCouple2(coupleNumber);
-                            String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
-                            String player2Name = getServer().getOfflinePlayer(player2UUID).getName();
-                            Boolean player1Online = pC.isCoupleOnline(player1UUID);
-                            Boolean player2Online = pC.isCoupleOnline(player2UUID);
-                            if (player1Online) {
-                                Player player1Obj = pC.getPlayerObject(player1UUID);
-                                player1Obj.sendMessage("You have been uncoupled from " + player2Name);
-                                if (player2Online) {
-                                    Player player2Obj = pC.getPlayerObject(player2UUID);
-                                    player2Obj.sendMessage("You have been uncoupled from " + player1Name);
-                                    pC.removeCouple(coupleNumber);
-                                    return true;
-                                }
-                                pC.removeCouple(coupleNumber);
-                                return true;
-                            }
-                            if (player2Online) {
-                                Player player2Obj = pC.getPlayerObject(player2UUID);
-                                player2Obj.sendMessage("You have been uncoupled from " + player1Name);
-                                pC.removeCouple(coupleNumber);
-                                return true;
-                            }
-                        }catch(IndexOutOfBoundsException e) {
-                            sender.sendMessage(String.format("%sError. No couple for that number exists.", ChatColor.RED));
-                            return true;
-                        }
-                    }catch (NumberFormatException e) {
-                        sender.sendMessage(String.format("%sInvalid usage. /couple remove (all/number).", ChatColor.RED));
+                    String player1RemoveRaw = args[1];
+                    Player player1Remove = getPlayerExact(player1RemoveRaw);
+                    if(player1Remove == null) {
+                        sender.sendMessage(String.format("%sError. Invalid player.", ChatColor.RED));
                         return true;
                     }
+                    if(!pC.isPlayerCoupled(player1Remove)) {
+                        sender.sendMessage(String.format("%sError. Player is not coupled.", ChatColor.RED));
+                        return true;
+                    }
+                    UUID player1UUID = pC.getCouple1FromPlayer(player1Remove);
+                    int coupleNumberR = pC.getCoupleNumFromPlayer(player1Remove);
+                    UUID player2UUID = pC.getCoupleOppositeUUID(player1UUID);
+                    String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
+                    String player2Name = getServer().getOfflinePlayer(player2UUID).getName();
+                    Boolean player2Online = pC.isCoupleOnline(player2UUID);
+                    player1Remove.sendMessage("You have been uncoupled from " + player2Name);
+                    if (player2Online) {
+                            Player player2Remove = pC.getCoupleOpposite(player1Remove);
+                            player2Remove.sendMessage("You have been uncoupled from " + player1Name);
+                            sender.sendMessage("Player "+ player1Name + " and " + player2Name + " couple has been dissolved.");
+                            pC.removeCouple(coupleNumberR);
+                            return true;
+                    }
+                    sender.sendMessage("Player "+ player1Name + "'s couple has been dissolved.");
+                    pC.removeCouple(coupleNumberR);
+                    return true;
 
                 case "health" :
 
@@ -220,6 +221,30 @@ public class CoupleCommands implements TabExecutor {
                     sender.sendMessage(player1Raw + " has been re-synced");
                     return true;
 
+                case "addsync" :
+                    if(args.length != 2) {
+                        boolean syncAddGet = pC.getAddSync();
+                        sender.sendMessage("Syncing on Add: " + syncAddGet);
+                        return true;
+                    }
+                    if(args[1].equalsIgnoreCase("true")) {
+                        pC.setAddSync(true);
+                        sender.sendMessage("Syncing on add is enabled");
+                        return true;
+                    }
+                    if(args[1].equalsIgnoreCase("false")) {
+                        pC.setAddSync(false);
+                        sender.sendMessage("Syncing on add is disabled");
+                        return true;
+                    }
+
+                case "about" :
+                    sender.sendMessage("This plugin was created by Kilobytes, requested and theorized by Nambo.");
+                    sender.sendMessage("Big thanks to yhousegaming, Shadow, Null and Fiters for bug and beta testing.");
+                    sender.sendMessage("If you discover any bugs or have any feature request, contact me at Kilobytes#8095 on Discord, or at:");
+                    sender.sendMessage("https://github.com/Kilobytz/RR-Plugin");
+                    return true;
+
                 default:
                     sender.sendMessage(String.format("%sInvalid usage. Do /couple to list all available commands.", ChatColor.RED));
                     return true;
@@ -257,7 +282,7 @@ public class CoupleCommands implements TabExecutor {
     public void populateCommandHash() {
         coupleCommands.put("add","/couple add : Adds two players to a couple.");
         coupleCommands.put("list","/couple list : Lists all current couples.");
-        coupleCommands.put("remove","/couple remove : Dissolves the specified couple number.");
+        coupleCommands.put("remove","/couple remove : Dissolves the couple for the specified player, or all.");
         coupleCommands.put("health","/couple health : Sets the maximum health for couples.");
         coupleCommands.put("sync","/couple sync : Syncs up the specified player to their couple's HP and Hunger.");
     }

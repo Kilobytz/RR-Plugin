@@ -28,7 +28,7 @@ public class PairEffects implements Listener {
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(dmgedPlayer);
                 if (pC.checkSoloCouple(couple)) {
-                    double hpToSet = couple.getHealth() - dmg;
+                    double hpToSet = dmgedPlayer.getHealth() - dmg;
                     if (hpToSet < 0) {
                         couple.setHealth(0);
                         return;

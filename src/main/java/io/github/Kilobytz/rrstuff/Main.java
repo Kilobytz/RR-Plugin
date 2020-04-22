@@ -18,6 +18,7 @@ public class Main  extends JavaPlugin {
         pC.setHunger(true);
         cC.setCouples(pC);
         cC.populateCommandHash();
+        pC.setAddSync(false);
         this.getCommand("couple").setExecutor(this.cC);
     }
 

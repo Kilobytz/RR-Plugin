@@ -19,11 +19,12 @@ public class PairConstructor {
         this.main = main;
     }
 
-    private ArrayList<UUID> paired1 = new ArrayList<>();
-    private ArrayList<UUID> paired2 = new ArrayList<>();
-    private HashMap<UUID, Integer> hungerLeader = new HashMap<>();
+    private final ArrayList<UUID> paired1 = new ArrayList<>();
+    private final ArrayList<UUID> paired2 = new ArrayList<>();
+    private final HashMap<UUID, Integer> hungerLeader = new HashMap<>();
     private boolean coupleHunger;
     private double maxHP;
+    private boolean addSync;
 
 
     public void setCouple(UUID player1UUID, UUID player2UUID) {
@@ -33,10 +34,6 @@ public class PairConstructor {
         Player player2 = getPlayerObject(player2UUID);
         player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
         player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
-        player1.setHealth(maxHP);
-        player2.setHealth(maxHP);
-        player1.setFoodLevel(20);
-        player2.setFoodLevel(20);
     }
     public Player getPlayerObject(UUID uuid) {
         return Bukkit.getPlayer(uuid);
@@ -90,24 +87,24 @@ public class PairConstructor {
         Boolean player1Online = isCoupleOnline(player1UUID);
         Boolean player2Online = isCoupleOnline(player2UUID);
         if(player1Online) {
-            player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             overMax(player1);
             if(player2Online) {
-                player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
                 overMax(player2);
                 return;
             }
             return;
         }
         if(player2Online) {
-            player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             overMax(player2);
         }
     }
 
     public void overMax(Player player) {
-        if(maxHP > 20) {
-            player.setHealth(20);
+        if(!addSync) {
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+            if (maxHP > 20) {
+                player.setHealth(20);
+            }
         }
     }
     public boolean isPlayerCoupled(Player player) {
@@ -124,12 +121,22 @@ public class PairConstructor {
         String player2Name = getDisplayNameFromUUID(player2);
         return "Couple Number: " + coupleNumber + ". Players: " + player1Name + " and " + player2Name + ".";
     }
-    public UUID getCouple1(int coupleNum) {
+    public UUID getCouple1FromNum(int coupleNum) {
         return paired1.get(coupleNum);
     }
-    public UUID getCouple2(int coupleNum) {
+
+    public UUID getCouple2FromNum(int coupleNum) {
         return paired2.get(coupleNum);
     }
+
+    public UUID getCouple1FromPlayer(Player player) {
+        return player.getUniqueId();
+    }
+
+    public UUID getCouple2FromPlayer(Player player) {
+        return player.getUniqueId();
+    }
+
     public int getPairNumbers() {
         return paired1.size();
     }
@@ -209,7 +216,7 @@ public class PairConstructor {
                         player.setFoodLevel(hungerToSet);
                     }
                 }
-            }, 10L);
+            }, 1L);
 
     }
     public boolean checkSoloCouple(Player couple) {
@@ -235,5 +242,10 @@ public class PairConstructor {
         Player player = getPlayerObject(uuid);
         return player != null;
     }
-
+    public void setAddSync(boolean syncAdd) {
+        this.addSync = syncAdd;
+    }
+    public boolean getAddSync() {
+        return this.addSync;
+    }
 }
