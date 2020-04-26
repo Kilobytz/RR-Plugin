@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="RR-Plugin" />
         <module name="NamboStuff" />
+        <module name="RR-Plugin-Testing" />
       </profile>
     </annotationProcessing>
   </component>

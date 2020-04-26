@@ -1,14 +1,8 @@
 name: RR-Plugin
-version: 1.01
+version: 1.1
 author: Kilobytes
-main: io.github.Kilobytz.nambostuff.Main
+main: io.github.Kilobytz.rrstuff.Main
 description: Plugin made by Kilobytes, requested by Nambo for the Random Randos Minecraft server, for Minecraft version 1.12.
 commands:
   couple:
-  uncouple:
-  uncoupleall:
-  listcouple:
-  listallcouples:
-  couplehp:
-  couplehunger:
-  sync:
+    description: main command for plugin

@@ -9,12 +9,12 @@ Add anchor tag
 
 Fix graphical bug with couples
 
-Fix commandblocks
+Fix commandblocks - DONE
 
-Clean up Main class
+Clean up Main class - DONE
 
 Add config(?)
 
 Add toggleable hunger
 
-Remake and simplify commands - use "/couple"  as a prefix
+Remake and simplify commands - use "/couple"  as a prefix -DONE
