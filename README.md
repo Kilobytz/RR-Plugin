@@ -5,7 +5,7 @@ Plugin for Nambo for the RR Discord server
 
 # To be done
 
-Add anchor tag
+Add anchor tag -DONE
 
 Fix graphical bug with couples
 
@@ -13,7 +13,7 @@ Fix commandblocks - DONE
 
 Clean up Main class - DONE
 
-Add config(?)
+Add config(?) -DONE
 
 Add toggleable hunger
 

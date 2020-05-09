@@ -1,4 +1,4 @@
-package io.github.Kilobytz.rrstuff;
+package io.github.Kilobytz.rrstuff.couple;
 
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -15,7 +15,7 @@ public class PairEffects implements Listener {
 
     PairConstructor pC;
 
-    void setPairs(PairConstructor pC) {
+    public void setPairs(PairConstructor pC) {
         this.pC = pC;
     }
 
