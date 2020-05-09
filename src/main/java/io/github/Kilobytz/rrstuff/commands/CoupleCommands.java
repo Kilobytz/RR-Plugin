@@ -242,7 +242,7 @@ public class CoupleCommands implements TabExecutor {
                     return true;
 
                 default:
-                    sender.sendMessage(String.format("%sInvalid usage. Do /couple to list all available commands.", ChatColor.RED));
+                    sender.sendMessage(String.format("%sInvalid usage. Do /couple to list all Couple commands.", ChatColor.RED));
                     return true;
 
             }

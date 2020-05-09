@@ -1,6 +1,7 @@
 package io.github.Kilobytz.rrstuff.couple;
 
 import io.github.Kilobytz.rrstuff.Main;
+import javafx.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -17,14 +18,27 @@ public class PairConstructor {
 
     private final Main main;
 
-    public PairConstructor(Main main) {
-        this.main = main;
-    }
 
     List<Couple> coupleList = new ArrayList<>();
     private boolean coupleHunger;
     private double maxHP;
     private boolean addSync;
+
+    public PairConstructor(Main main) {
+        this.main = main;
+        this.maxHP = main.getConfig().getDouble("CoupleMaxHP = ");
+        if(maxHP == 0.0) {
+            maxHP = 20;
+        }
+
+
+        try{
+            this.addSync = main.getConfig().getBoolean("AddHPOnSync = ");
+        }catch(NullPointerException e) {
+            addSync = false;
+        }
+    }
+
 
 
     public void setCouple(UUID player1UUID, UUID player2UUID) {
@@ -152,6 +166,8 @@ public class PairConstructor {
 
     public void setMaxHP(double num) {
         this.maxHP = num;
+        main.getConfig().set("CoupleMaxHP = " , num);
+        main.saveConfig();
         for(Couple couple : coupleList) {
 
             UUID player1UUID = couple.getPlayer1();
@@ -239,6 +255,8 @@ public class PairConstructor {
     }
     public void setAddSync(boolean syncAdd) {
         this.addSync = syncAdd;
+        main.getConfig().set("AddHPOnSync = " , addSync);
+        main.saveConfig();
     }
     public boolean getAddSync() {
         return this.addSync;

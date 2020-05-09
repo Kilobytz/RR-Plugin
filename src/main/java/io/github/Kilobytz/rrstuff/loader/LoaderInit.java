@@ -19,11 +19,20 @@ public class LoaderInit {
     List<Player> playersOnline = new ArrayList<>();
     HashMap<Entity,LoaderHandling> isLoading = new HashMap<>();
     World world;
+    String loaderTag;
 
 
     public LoaderInit(Main main, PluginManager pluginManager) {
         this.main = main;
         this.pluginManager = pluginManager;
+        try{
+            this.loaderTag = main.getConfig().getString("ChunkLoaderTag = ");
+        }catch(NullPointerException e) {
+            this.loaderTag = "load";
+        }
+        if(loaderTag == null) {
+            loaderTag = "load";
+        }
     }
 
 
@@ -42,7 +51,7 @@ public class LoaderInit {
         for (Entity entity : world.getEntities()) {
             if(entity.getScoreboardTags() != null) {
                 for(String tags : entity.getScoreboardTags()) {
-                    if(tags.equalsIgnoreCase("load")) {
+                    if(tags.equalsIgnoreCase(loaderTag)) {
                         if(!isLoading.containsKey(entity)) {
                             LoaderHandling newLoader = new LoaderHandling(main, world, entity);
                             pluginManager.registerEvents(newLoader, main);
@@ -59,6 +68,31 @@ public class LoaderInit {
 
             }
         }
+    }
+
+    public void changeLoaderTag(String tag) {
+        String oldTag = this.loaderTag;
+        for(Entity entities : world.getEntities()) {
+            for(String word : entities.getScoreboardTags()) {
+                if(word.equalsIgnoreCase(oldTag)) {
+                    entities.addScoreboardTag(tag);
+                }
+            }
+        }
+        loaderTag = tag;
+        main.getConfig().set("ChunkLoaderTag = " , loaderTag);
+        main.saveConfig();
+        for(Entity entities : world.getEntities()) {
+            for(String word : entities.getScoreboardTags()) {
+                if(word.equalsIgnoreCase(oldTag)) {
+                    entities.removeScoreboardTag(oldTag);
+                }
+            }
+        }
+    }
+
+    public String getLoaderTag() {
+        return loaderTag;
     }
 
     public void addOnlinePlayers() {
