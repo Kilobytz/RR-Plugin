@@ -1,7 +1,11 @@
 package io.github.Kilobytz.rrstuff.couple;
 
+import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +14,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
+
+import java.util.UUID;
 
 public class PairEffects implements Listener {
 
@@ -34,6 +40,7 @@ public class PairEffects implements Listener {
                         return;
                     }
                     couple.setHealth(hpToSet);
+                    sendDmgEffect(couple);
                 }
             }
         }
@@ -101,6 +108,7 @@ public class PairEffects implements Listener {
                         hpToSet = maxHP;
                     }
                     couple.setHealth(hpToSet);
+                    sendDmgEffect(couple);
                 }
             }
 
@@ -130,4 +138,10 @@ public class PairEffects implements Listener {
         }
     }
 
+    public void sendDmgEffect(Player player) {
+        net.minecraft.server.v1_12_R1.Entity entity = ((CraftPlayer) player).getHandle();
+        PacketPlayOutAnimation dmg = new PacketPlayOutAnimation(entity,1);
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(dmg);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_HURT,1,1);
+    }
 }

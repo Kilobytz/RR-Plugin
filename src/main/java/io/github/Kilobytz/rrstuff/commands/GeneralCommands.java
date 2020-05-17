@@ -2,10 +2,12 @@ package io.github.Kilobytz.rrstuff.commands;
 
 import io.github.Kilobytz.rrstuff.loader.LoaderInit;
 import io.github.Kilobytz.rrstuff.misc.SnowballDeath;
+import io.github.Kilobytz.rrstuff.packetshit.VanishInit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,12 +18,16 @@ public class GeneralCommands implements TabExecutor {
 
     LoaderInit loaderInit;
     SnowballDeath snowballDeath;
+    VanishInit vanishInit;
 
     public void setLoaderData(LoaderInit loaderInit) {
         this.loaderInit = loaderInit;
     }
     public void setSnowballInfo(SnowballDeath snowballDeath) {
         this.snowballDeath = snowballDeath;
+    }
+    public void setVanishData(VanishInit vanishInit) {
+        this.vanishInit = vanishInit;
     }
 
     Map<String, String> generalCommands = new LinkedHashMap<>();
@@ -32,7 +38,7 @@ public class GeneralCommands implements TabExecutor {
                              Command command,
                              String label,
                              String[] args) {
-
+        Player playerSent = (Player) sender;
 
         if (command.getName().equalsIgnoreCase("rr")) {
 
@@ -79,7 +85,13 @@ public class GeneralCommands implements TabExecutor {
                         sender.sendMessage("Snowball death has been disabled.");
                         return true;
                     }
-
+                case "vanish" :
+                    if(args.length == 1) {
+                        vanishInit.setVanish(playerSent);
+                        return true;
+                    }
+                    sender.sendMessage(String.format("%sError. Invalid usage.", ChatColor.RED));
+                    return true;
                 default:
                     sender.sendMessage(String.format("%sInvalid usage. Do /rr to get a list of all RR Commands.", ChatColor.RED));
                     return true;
@@ -112,8 +124,8 @@ public class GeneralCommands implements TabExecutor {
                 if(args[0].equalsIgnoreCase("loader")) {
                     return coupleSubCom;
                 }
-
             }
+
 
 
         }

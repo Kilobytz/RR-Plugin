@@ -1,13 +1,13 @@
 package io.github.Kilobytz.rrstuff;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import io.github.Kilobytz.rrstuff.commands.CoupleCommands;
 import io.github.Kilobytz.rrstuff.commands.GeneralCommands;
 import io.github.Kilobytz.rrstuff.couple.PairConstructor;
 import io.github.Kilobytz.rrstuff.couple.PairEffects;
 import io.github.Kilobytz.rrstuff.loader.LoaderInit;
 import io.github.Kilobytz.rrstuff.misc.SnowballDeath;
+import io.github.Kilobytz.rrstuff.packetshit.VanishInit;
+import io.github.Kilobytz.rrstuff.packetshit.VanishListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,12 +15,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 
 public class Main  extends JavaPlugin {
-    ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     PluginManager pluginManager = getServer().getPluginManager();
     PairConstructor pC = new PairConstructor(this);
     PairEffects pE = new PairEffects();
     CoupleCommands cC = new CoupleCommands();
     GeneralCommands gC = new GeneralCommands();
+    VanishInit vI = new VanishInit(this);
+    VanishListener vL = new VanishListener();
     LoaderInit lI = new LoaderInit(this, pluginManager);
     SnowballDeath sD = new SnowballDeath(this);
 
@@ -41,6 +42,7 @@ public class Main  extends JavaPlugin {
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(this.pE, this);
         pluginManager.registerEvents(this.sD, this);
+        pluginManager.registerEvents(this.vL, this);
     }
 
     public void setupInit() {
@@ -50,8 +52,12 @@ public class Main  extends JavaPlugin {
         cC.populateCommandHash();
         gC.populateCommandHash();
         gC.setLoaderData(lI);
+        gC.setVanishData(vI);
+        vL.setVanishData(vI);
         gC.setSnowballInfo(sD);
+        vI.vanishStart();
         startLoaderTimer();
+
     }
 
     public void startLoaderTimer() {

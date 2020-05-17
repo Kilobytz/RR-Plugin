@@ -7,7 +7,7 @@ Plugin for Nambo for the RR Discord server
 
 Add anchor tag -DONE
 
-Fix graphical bug with couples
+Fix graphical bug with couples - DONE
 
 Fix commandblocks - DONE
 
@@ -18,3 +18,5 @@ Add config(?) -DONE
 Add toggleable hunger
 
 Remake and simplify commands - use "/couple"  as a prefix -DONE
+
+Add abomination of a vanish feature -DONE (temporary until I get more stable one made)
