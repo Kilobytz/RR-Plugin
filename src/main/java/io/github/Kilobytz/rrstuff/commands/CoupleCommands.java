@@ -99,7 +99,7 @@ public class CoupleCommands implements TabExecutor {
                     }
                     try {
                         int coupleNumbers = pC.getLengthOfArray();
-                        for (int i = 0; i < coupleNumbers; i++) {
+                        for (int i = 0; i < coupleNumbers; ++i) {
                             String coupleStatement = pC.getCoupleStatement(i);
                             sender.sendMessage(coupleStatement);
                         }
@@ -119,7 +119,7 @@ public class CoupleCommands implements TabExecutor {
                     }
                     if(args[1].equalsIgnoreCase("all")) {
                         int pairNumbers = pC.getLengthOfArray();
-                        for (int i = 0; i < pairNumbers; i++) {
+                        for (int i = 0; i < pairNumbers; ++i) {
                             UUID player1UUID = pC.getCouple1FromNum(i);
                             UUID player2UUID = pC.getCoupleOppositeUUID(player1UUID);
                             String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
@@ -233,6 +233,9 @@ public class CoupleCommands implements TabExecutor {
                         sender.sendMessage("Syncing on add is disabled");
                         return true;
                     }
+
+                case "dmg" :
+                    
 
                 case "about" :
                     sender.sendMessage("This plugin was created by Kilobytes, requested and theorized by Nambo.");
