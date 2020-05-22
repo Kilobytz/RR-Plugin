@@ -1,7 +1,10 @@
 package io.github.Kilobytz.rrstuff.commands;
 
+import io.github.Kilobytz.rrstuff.Main;
 import io.github.Kilobytz.rrstuff.loader.LoaderInit;
 import io.github.Kilobytz.rrstuff.misc.SnowballDeath;
+import io.github.Kilobytz.rrstuff.mole.MoleHandling;
+import io.github.Kilobytz.rrstuff.mole.MoleListener;
 import io.github.Kilobytz.rrstuff.packetshit.VanishInit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -19,6 +22,16 @@ public class GeneralCommands implements TabExecutor {
     LoaderInit loaderInit;
     SnowballDeath snowballDeath;
     VanishInit vanishInit;
+    MoleListener moleListener;
+    Main main;
+
+
+    public GeneralCommands(Main main) {
+        this.main = main;
+    }
+    public void setMoleListener(MoleListener moleListener) {
+        this.moleListener = moleListener;
+    }
 
     public void setLoaderData(LoaderInit loaderInit) {
         this.loaderInit = loaderInit;
@@ -91,6 +104,23 @@ public class GeneralCommands implements TabExecutor {
                         return true;
                     }
                     sender.sendMessage(String.format("%sError. Invalid usage.", ChatColor.RED));
+                    return true;
+
+                case "molestart" :
+                    if(!moleListener.isMoleOn()) {
+                        sender.sendMessage("Starting molecore.");
+                        moleListener.setMole();
+                        return true;
+                    }
+                    sender.sendMessage("A molecore has already been started!");
+                    return true;
+                case "moleend" :
+                    if(moleListener.isMoleOn()) {
+                        sender.sendMessage("Ending Molecore.");
+                        moleListener.stopMole();
+                        return true;
+                    }
+                    sender.sendMessage("A molecore has not been started!");
                     return true;
                 default:
                     sender.sendMessage(String.format("%sInvalid usage. Do /rr to get a list of all RR Commands.", ChatColor.RED));

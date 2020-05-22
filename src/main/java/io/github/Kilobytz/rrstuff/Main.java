@@ -6,6 +6,8 @@ import io.github.Kilobytz.rrstuff.couple.PairConstructor;
 import io.github.Kilobytz.rrstuff.couple.PairEffects;
 import io.github.Kilobytz.rrstuff.loader.LoaderInit;
 import io.github.Kilobytz.rrstuff.misc.SnowballDeath;
+import io.github.Kilobytz.rrstuff.mole.MoleHandling;
+import io.github.Kilobytz.rrstuff.mole.MoleListener;
 import io.github.Kilobytz.rrstuff.packetshit.VanishInit;
 import io.github.Kilobytz.rrstuff.packetshit.VanishListener;
 import org.bukkit.Bukkit;
@@ -19,11 +21,12 @@ public class Main  extends JavaPlugin {
     PairConstructor pC = new PairConstructor(this);
     PairEffects pE = new PairEffects();
     CoupleCommands cC = new CoupleCommands();
-    GeneralCommands gC = new GeneralCommands();
+    GeneralCommands gC = new GeneralCommands(this);
     VanishInit vI = new VanishInit(this);
     VanishListener vL = new VanishListener();
     LoaderInit lI = new LoaderInit(this, pluginManager);
     SnowballDeath sD = new SnowballDeath(this);
+    MoleListener mL = new MoleListener(this);
 
     @Override
     public void onEnable() {
@@ -43,6 +46,7 @@ public class Main  extends JavaPlugin {
         pluginManager.registerEvents(this.pE, this);
         pluginManager.registerEvents(this.sD, this);
         pluginManager.registerEvents(this.vL, this);
+        pluginManager.registerEvents(this.mL, this);
     }
 
     public void setupInit() {
@@ -55,19 +59,14 @@ public class Main  extends JavaPlugin {
         gC.setVanishData(vI);
         vL.setVanishData(vI);
         gC.setSnowballInfo(sD);
+        gC.setMoleListener(mL);
         vI.vanishStart();
         startLoaderTimer();
 
     }
 
     public void startLoaderTimer() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-
-            @Override
-            public void run() {
-                lI.entityCheck();
-            }
-        },50L, 1L);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> lI.entityCheck(),50L, 1L);
     }
 
     private void createConfig() {
@@ -86,5 +85,4 @@ public class Main  extends JavaPlugin {
             e.printStackTrace();
         }
     }
-
 }

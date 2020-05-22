@@ -234,16 +234,6 @@ public class CoupleCommands implements TabExecutor {
                         return true;
                     }
 
-                case "dmg" :
-                    
-
-                case "about" :
-                    sender.sendMessage("This plugin was created by Kilobytes, requested and theorized by Nambo.");
-                    sender.sendMessage("Big thanks to yhousegaming, Shadow, Null and Fiters for bug and beta testing.");
-                    sender.sendMessage("If you discover any bugs or have any feature request, contact me at Kilobytes#8095 on Discord, or at:");
-                    sender.sendMessage("https://github.com/Kilobytz/RR-Plugin");
-                    return true;
-
                 default:
                     sender.sendMessage(String.format("%sInvalid usage. Do /couple to list all Couple commands.", ChatColor.RED));
                     return true;
@@ -283,19 +273,12 @@ public class CoupleCommands implements TabExecutor {
                                 }
                             }
                         } else {
-                            for (String entry : booleanTypes) {
-                                coupleSubCom.add(entry);
-                            }
+                            coupleSubCom.addAll(booleanTypes);
                         }
                         return coupleSubCom;
                     case "list" :
-                        if(coupleSubCom.size() == 0) {
-                            return coupleSubCom;
-                    }
                     case "health" :
-                        if(coupleSubCom.size() == 0) {
                             return coupleSubCom;
-                        }
                     default :
                         return null;
                 }
