@@ -23,11 +23,9 @@ public class SnowballDeath implements Listener {
 
     @EventHandler
     public void snowballDeath(EntityDamageByEntityEvent event) {
-        if(event.getDamager() instanceof Snowball) {
-            if(event.getEntity() instanceof Player) {
-                if(enabled) {
-                    ((Player) event.getEntity()).setHealth(0);
-                }
+        if(event.getDamager() instanceof Snowball && event.getEntity() instanceof Player) {
+            if(enabled) {
+                ((Player) event.getEntity()).setHealth(0);
             }
         }
     }

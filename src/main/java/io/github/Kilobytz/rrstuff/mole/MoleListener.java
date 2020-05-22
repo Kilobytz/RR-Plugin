@@ -56,14 +56,11 @@ public class MoleListener implements Listener {
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
                 event.setCancelled(true);
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
-                    if (!playersOnline.equals(event.getPlayer())) {
-                        if (playersOnline.getWorld().equals(event.getPlayer().getWorld())) {
-                            if (moleHandling.doesMoleContainID(playersOnline.getUniqueId())) {
-                                if (moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
-                                    playersOnline.sendMessage(name + ": " + chat);
-                                }
-                            }
-                        }
+                    if (!playersOnline.equals(event.getPlayer())
+                            && playersOnline.getWorld().equals(event.getPlayer().getWorld())
+                            && moleHandling.doesMoleContainID(playersOnline.getUniqueId())
+                            && moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
+                        playersOnline.sendMessage(name + ": " + chat);
                     }
                 }
                 event.getPlayer().sendMessage(name + ": " + chat);
@@ -81,14 +78,11 @@ public class MoleListener implements Listener {
         try {
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
-                    if (!playersOnline.equals(event.getPlayer())) {
-                        if (playersOnline.getWorld().equals(event.getPlayer().getWorld())) {
-                            if (moleHandling.doesMoleContainID(playersOnline.getUniqueId())) {
-                                if (!moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
-                                    event.setJoinMessage(null);
-                                }
-                            }
-                        }
+                    if (!playersOnline.equals(event.getPlayer()) &&
+                            playersOnline.getWorld().equals(event.getPlayer().getWorld())
+                            && moleHandling.doesMoleContainID(playersOnline.getUniqueId())
+                            && !moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
+                        event.setJoinMessage(null);
                     }
                 }
             }
@@ -101,14 +95,11 @@ public class MoleListener implements Listener {
         try {
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
-                    if (!playersOnline.equals(event.getPlayer())) {
-                        if (playersOnline.getWorld().equals(event.getPlayer().getWorld())) {
-                            if (moleHandling.doesMoleContainID(playersOnline.getUniqueId())) {
-                                if (!moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
-                                    event.setQuitMessage(null);
-                                }
-                            }
-                        }
+                    if (!playersOnline.equals(event.getPlayer()) &&
+                            playersOnline.getWorld().equals(event.getPlayer().getWorld())
+                            && moleHandling.doesMoleContainID(playersOnline.getUniqueId())
+                            && !moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId())) {
+                        event.setQuitMessage(null);
                     }
                 }
             }
@@ -120,14 +111,11 @@ public class MoleListener implements Listener {
         try {
             if (moleHandling.doesMoleContainID(event.getEntity().getUniqueId())) {
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
-                    if (!playersOnline.equals(event.getEntity())) {
-                        if (playersOnline.getWorld().equals(event.getEntity().getWorld())) {
-                            if (moleHandling.doesMoleContainID(playersOnline.getUniqueId())) {
-                                if (!moleHandling.checkDistanceRaw(event.getEntity().getUniqueId(), playersOnline.getUniqueId())) {
-                                    event.setDeathMessage(null);
-                                }
-                            }
-                        }
+                    if (!playersOnline.equals(event.getEntity()) &&
+                            playersOnline.getWorld().equals(event.getEntity().getWorld())
+                            && moleHandling.doesMoleContainID(playersOnline.getUniqueId())
+                            && !moleHandling.checkDistanceRaw(event.getEntity().getUniqueId(), playersOnline.getUniqueId())) {
+                        event.setDeathMessage(null);
                     }
                 }
             }

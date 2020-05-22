@@ -125,21 +125,17 @@ public class MoleHandling {
         for (Player players : Bukkit.getOnlinePlayers()) {
             if (doesMoleContainID(players.getUniqueId())) {
                 for (Player player1 : Bukkit.getOnlinePlayers()) {
-                    if (!player1.equals(players)) {
-                        if (doesMoleContainID(player1.getUniqueId())) {
-                            if (!player1.equals(players))
-                                if (players.getWorld().equals(player1.getWorld())) {
-                                    double distance = players.getLocation().distance(player1.getLocation());
-                                    if (distance > limit) {
-                                        unrenderPlayer(players, player1);
-                                    } else {
-                                        renderPlayer(players, player1);
-
-                                    }
-                                    continue;
-                                }
-                            unrenderPlayer(player1, players);
+                    if (!player1.equals(players) && doesMoleContainID(player1.getUniqueId())) {
+                        if (players.getWorld().equals(player1.getWorld())) {
+                            double distance = players.getLocation().distance(player1.getLocation());
+                            if (distance > limit) {
+                                unrenderPlayer(players, player1);
+                            } else {
+                                renderPlayer(players, player1);
+                            }
+                            continue;
                         }
+                        unrenderPlayer(player1, players);
                     }
 
                 }
@@ -176,13 +172,12 @@ public class MoleHandling {
                 mP.getMolePlayer().sendMessage("You are not a mole!");
             }
             for(Player players : Bukkit.getOnlinePlayers()) {
-                if(doesMoleContainID(players.getUniqueId())) {
-                    if (!players.equals(mP.getMolePlayer())) {
-                        mP.setRangeCheck(getInstanceFromPlayer(players));
-                        if (!checkDistanceRaw(mP.getMolePlayer().getUniqueId(), players.getUniqueId())) {
-                            unrenderPlayer(mP.getMolePlayer(), players);
+                if(doesMoleContainID(players.getUniqueId()) && !players.equals(mP.getMolePlayer())) {
+                    mP.setRangeCheck(getInstanceFromPlayer(players));
+                    if (!checkDistanceRaw(mP.getMolePlayer().getUniqueId(), players.getUniqueId())) {
+                        unrenderPlayer(mP.getMolePlayer(), players);
                         }
-                    }
+
                 }
             }
         }
@@ -274,12 +269,10 @@ public class MoleHandling {
                             return;
                         }
                         UUID recipientID = event.getPlayer().getUniqueId();
-                        if (doesMoleContainID(uuid)) {
-                            if (doesMoleContainID(recipientID)) {
-                                if (checkDistanceRaw(uuid, recipientID)) {
-                                } else {
-                                    event.setCancelled(true);
-                                }
+                        if (doesMoleContainID(uuid) && doesMoleContainID(recipientID)) {
+                            if (checkDistanceRaw(uuid, recipientID)) {
+                            } else {
+                                event.setCancelled(true);
                             }
                         }
                     }
