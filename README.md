@@ -19,4 +19,8 @@ Add toggleable hunger
 
 Remake and simplify commands - use "/couple"  as a prefix -DONE
 
-Add abomination of a vanish feature -DONE (temporary until I get more stable one made)
+Fix the abomination of a vanish feature
+
+Refine and streamline the mole feature
+
+Get the netty stuff working
