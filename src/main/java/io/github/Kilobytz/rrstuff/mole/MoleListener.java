@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -138,5 +139,20 @@ public class MoleListener implements Listener {
 
         }
         moleList.clear();
+    }
+    @EventHandler
+    public void switchDim(PlayerChangedWorldEvent event) {
+        try {
+            if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
+                MolePlayer mp = moleHandling.getInstanceFromPlayer(event.getPlayer());
+                mp.emptyRangeCheck();
+                for(MolePlayer mole : moleHandling.molePlayers) {
+                    if(mole.inRangeCheck(mp)) {
+                        mole.removeRangeCheck(mp);
+                    }
+                }
+            }
+        }catch (NullPointerException ignored) {
+        }
     }
 }
