@@ -47,16 +47,16 @@ public class MoleHandling {
                 player.sendMessage("Setting moles, please wait.");
             }
         }
-        if (molePlayers.size() <= 5) {
+        if (molePlayers.size() <= 8) {
             moleCount = 1;
         }
-        if (molePlayers.size() > 5 && molePlayers.size() <= 10) {
+        if (molePlayers.size() > 8 && molePlayers.size() <= 12) {
             moleCount = 2;
         }
-        if (molePlayers.size() > 10 && molePlayers.size() <= 15) {
+        if (molePlayers.size() > 12 && molePlayers.size() <= 20) {
             moleCount = 3;
         }
-        if(molePlayers.size() > 15) {
+        if(molePlayers.size() > 20) {
             moleCount = 4;
         }
 
@@ -91,14 +91,14 @@ public class MoleHandling {
     }
 
     public void setMoles() {
-        for(int i = 0; i < moleCount;) {
-            double rand = Math.random() * (molePlayers.size()-1);
-            int randomer = (int) Math.round(rand);
-            if(!molePlayers.get(randomer).isMole) {
-                molePlayers.get(randomer).setMole(true);
-                ++i;
+            for (int i = 0; i < moleCount; ) {
+                double rand = Math.random() * (molePlayers.size() - 1);
+                int randomer = (int) Math.round(rand);
+                if (!molePlayers.get(randomer).isMole) {
+                    molePlayers.get(randomer).setMole(true);
+                    ++i;
+                }
             }
-        }
     }
 
     public List<MolePlayer> getMoles() {
@@ -135,7 +135,7 @@ public class MoleHandling {
                             }
                             continue;
                         }
-                        unrenderPlayer(player1, players);
+                        unrenderPlayer(players, player1);
                     }
 
                 }

@@ -11,9 +11,11 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import io.github.Kilobytz.rrstuff.Main;
 import io.github.Kilobytz.rrstuff.packetshit.wrapperstuff.WrapperPlayServerPlayerInfo;
+import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -84,6 +86,8 @@ public class VanishInit {
         vanishedPlayers.add(player.getUniqueId());
         net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
         PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,nmsPlayer);
+        LivingEntity collideP = player;
+        collideP.setCollidable(false);
         for(Player allPlayers : Bukkit.getOnlinePlayers()) {
             if(!vanishedPlayers.contains(allPlayers.getUniqueId())) {
                 ((CraftPlayer) allPlayers).getHandle().playerConnection.sendPacket(vanish);
@@ -99,6 +103,8 @@ public class VanishInit {
         vanishedPlayers.remove(player.getUniqueId());
         net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
         PacketPlayOutPlayerInfo unvanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,nmsPlayer);
+        LivingEntity collideP = player;
+        collideP.setCollidable(true);
         for(Player allPlayers : Bukkit.getOnlinePlayers()) {
             if(!vanishedPlayers.contains(allPlayers.getUniqueId())) {
                 ((CraftPlayer) allPlayers).getHandle().playerConnection.sendPacket(unvanish);
