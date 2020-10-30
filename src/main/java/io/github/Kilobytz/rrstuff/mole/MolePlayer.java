@@ -2,6 +2,7 @@ package io.github.Kilobytz.rrstuff.mole;
 
 import com.mojang.authlib.GameProfile;
 import io.github.Kilobytz.rrstuff.Main;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -18,6 +19,7 @@ public class MolePlayer {
     GameProfile moleProfile;
     GameProfile normalProfile;
     Main main;
+    boolean diffDim = true;
     private List<UUID> inRange = new ArrayList<>();
 
     public MolePlayer(Player player,Main main) {
@@ -55,6 +57,12 @@ public class MolePlayer {
             return false;
         }
     }
+    public boolean anyInRange() {
+        if(inRange.size() == 0) {
+            return false;
+        }
+        return true;
+    }
     public void setRangeCheck(MolePlayer mP) {
         inRange.add(mP.getMolePlayer().getUniqueId());
     }
@@ -64,6 +72,10 @@ public class MolePlayer {
 
     public UUID getMoleID() {
         return userID;
+    }
+
+    public void setDim(boolean status) {
+        this.diffDim = status;
     }
 
     public void emptyRangeCheck() {

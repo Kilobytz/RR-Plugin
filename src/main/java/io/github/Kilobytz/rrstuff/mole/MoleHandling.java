@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,14 +125,13 @@ public class MoleHandling {
             if (doesMoleContainID(players.getUniqueId())) {
                 for (Player player1 : Bukkit.getOnlinePlayers()) {
                     if (!player1.equals(players) && doesMoleContainID(player1.getUniqueId())) {
-                        if (players.getWorld().equals(player1.getWorld())) {
+                        if(player1.getWorld().equals(players.getWorld())) {
                             double distance = players.getLocation().distance(player1.getLocation());
-                            if (distance > limit) {
-                                unrenderPlayer(players, player1);
-                            } else {
+                            if(!(distance > limit)) {
+
                                 renderPlayer(players, player1);
+                                continue;
                             }
-                            continue;
                         }
                         unrenderPlayer(players, player1);
                     }
@@ -142,6 +140,17 @@ public class MoleHandling {
             }
         }
     }
+
+    public void rangeVerify(MolePlayer mP) {
+        for(MolePlayer moles : molePlayers) {
+            if(!moles.equals(mP)) {
+                if(moles.inRangeCheck(mP)) {
+                    moles.removeRangeCheck(mP);
+                }
+            }
+        }
+    }
+
 
     public boolean checkDistanceRaw(UUID uuid1, UUID uuid2) {
         Player player1 = Bukkit.getPlayer(uuid1);
@@ -238,7 +247,10 @@ public class MoleHandling {
             MolePlayer mP1 = getInstanceFromPlayer(player1);
             MolePlayer mP2 = getInstanceFromPlayer(player2);
             if(!mP1.inRangeCheck(mP2)) {
-                return;
+                if(!(mP1.getMolePlayer().getWorld() != mP2.getMolePlayer().getWorld()) && (!mP1.inRangeCheck(mP2))) {
+                    return;
+                }
+                
             }
             net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) mP2.getMolePlayer()).getHandle();
             PacketPlayOutPlayerInfo unrenderPacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer);
