@@ -77,7 +77,7 @@ public class MoleListener implements Listener {
         try {
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
                 String jM = event.getJoinMessage();
-                event.setJoinMessage(null);
+        event.setJoinMessage(null);
                 event.getPlayer().sendMessage(ChatColor.YELLOW + jM);
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
                     if (playersOnline.equals(event.getPlayer()) || 
