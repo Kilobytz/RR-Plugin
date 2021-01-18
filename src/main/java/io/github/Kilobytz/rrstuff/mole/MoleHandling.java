@@ -10,12 +10,17 @@ import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import io.github.Kilobytz.rrstuff.Main;
-import io.github.Kilobytz.rrstuff.packetshit.wrapperstuff.WrapperPlayServerPlayerInfo;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.Reflection;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.TinyProtocol;
+import io.netty.channel.Channel;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -31,6 +36,12 @@ public class MoleHandling {
     public MoleHandling(Main main) {
         this.main = main;
     }
+
+    private TinyProtocol protocol;
+    private Class<?> playerInfoClass = Reflection.getClass("{nms}.PacketPlayOutPlayerInfo");
+    private Reflection.FieldAccessor<List> playerInfo = Reflection.getField(this.playerInfoClass, "b", List.class);
+    private Reflection.FieldAccessor<?> packetEnum = Reflection.getField(this.playerInfoClass, "a", EnumPlayerInfoAction.class);
+  
 
     List<MolePlayer> molePlayers = new ArrayList<>();
 
@@ -69,12 +80,11 @@ public class MoleHandling {
     public void shutItAllDown() {
         Bukkit.getServer().getScheduler().cancelTask(distTimerID);
         for(MolePlayer mP1 : molePlayers) {
-            net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) mP1.getMolePlayer()).getHandle();
-            PacketPlayOutPlayerInfo unrenderPacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer);
+            PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,((CraftPlayer) mP1.getMolePlayer()).getHandle());
             for(MolePlayer mP2 : molePlayers) {
                 if(!mP1.equals(mP2)) {
-                    ((CraftPlayer) mP2.getMolePlayer()).getHandle().playerConnection.sendPacket(unrenderPacket);
-                    mP2.getMolePlayer().hidePlayer(mP1.getMolePlayer());
+                    ((CraftPlayer) mP1.getMolePlayer()).getHandle().playerConnection.sendPacket(vanish);
+                    mP2.getMolePlayer().showPlayer(main,mP1.getMolePlayer());
                 }
             }
         }
@@ -127,7 +137,7 @@ public class MoleHandling {
                     if (!player1.equals(players) && doesMoleContainID(player1.getUniqueId())) {
                         if(player1.getWorld().equals(players.getWorld())) {
                             double distance = players.getLocation().distance(player1.getLocation());
-                            if(!(distance > limit)) {
+                            if((distance < limit)) {
 
                                 renderPlayer(players, player1);
                                 continue;
@@ -158,7 +168,7 @@ public class MoleHandling {
 
         if (player1.getWorld().equals(player2.getWorld())) {
             double distance = player1.getLocation().distance(player2.getLocation());
-            return !(distance > limit);
+            return (distance < limit);
 
         }
         return false;
@@ -233,10 +243,9 @@ public class MoleHandling {
             if (mP1.inRangeCheck(mP2)) {
                 return;
             }
-            net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) mP2.getMolePlayer()).getHandle();
-            PacketPlayOutPlayerInfo renderPacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, nmsPlayer);
-            ((CraftPlayer) player1).getHandle().playerConnection.sendPacket(renderPacket);
-            player1.showPlayer(player2);
+            PacketPlayOutPlayerInfo render = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,((CraftPlayer) mP1.getMolePlayer()).getHandle());
+            ((CraftPlayer) mP1.getMolePlayer()).getHandle().playerConnection.sendPacket(render);
+            mP2.getMolePlayer().showPlayer(main,mP1.getMolePlayer());
             mP1.setRangeCheck(mP2);
         }catch (NullPointerException ignored) {
         }
@@ -252,48 +261,28 @@ public class MoleHandling {
                 }
                 
             }
-            net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) mP2.getMolePlayer()).getHandle();
-            PacketPlayOutPlayerInfo unrenderPacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, nmsPlayer);
-            ((CraftPlayer) player1).getHandle().playerConnection.sendPacket(unrenderPacket);
-            player1.hidePlayer(player2);
+            PacketPlayOutPlayerInfo unrender = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,((CraftPlayer) mP1.getMolePlayer()).getHandle());
+            ((CraftPlayer) mP1.getMolePlayer()).getHandle().playerConnection.sendPacket(unrender);
+            mP2.getMolePlayer().hidePlayer(main,mP1.getMolePlayer());
             mP1.removeRangeCheck(mP2);
         }catch (NullPointerException ignored) {
         }
     }
 
     public void moleListen() {
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
-
-                main,
-                ListenerPriority.NORMAL,
-                PacketType.Play.Server.PLAYER_INFO) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                try {
-                    PacketContainer packet = event.getPacket();
-                    WrapperPlayServerPlayerInfo wPacket = new WrapperPlayServerPlayerInfo(packet);
-                    EnumWrappers.PlayerInfoAction packetAction = wPacket.getAction();
-                    List<PlayerInfoData> playerIDs = new ArrayList<>(wPacket.getData());
-                    if (packetAction.equals(EnumWrappers.PlayerInfoAction.ADD_PLAYER) || packetAction.equals(EnumWrappers.PlayerInfoAction.UPDATE_LATENCY)) {
-                        String rawUUID = getUUID(playerIDs.get(0).toString());
-                        UUID uuid = UUID.fromString(rawUUID);
-                        if (uuid.equals(event.getPlayer().getUniqueId())) {
-                            return;
-                        }
-                        UUID recipientID = event.getPlayer().getUniqueId();
-                        if (doesMoleContainID(uuid) && doesMoleContainID(recipientID)) {
-                            if (checkDistanceRaw(uuid, recipientID)) {
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
+        this.protocol = new TinyProtocol((Plugin)this.main) {
+            public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
+              if (packet instanceof PacketPlayOutPlayerInfo) {
+                  if(!((EnumPlayerInfoAction)MoleHandling.this.packetEnum.get(packet)).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
+                      if(getInstanceFromPlayer(receiver) == null) {
+                        return super.onPacketOutAsync(receiver, channel, packet);
+                      }
+                      return null;
                     }
-                } catch (FieldAccessException e) {
-                    e.printStackTrace();
-                    Bukkit.getServer().getConsoleSender().sendMessage("shit broke yo");
-                }
+                }   
+                return super.onPacketOutAsync(receiver, channel, packet);
             }
-        });
+        };
     }
 
     public String getUUID(String packetData) {
@@ -319,3 +308,56 @@ public class MoleHandling {
         }
     }
 }
+
+
+/*public void packetListen() {
+      this.protocol = new TinyProtocol((Plugin)this.main) {
+          public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
+            if (packet instanceof PacketPlayOutPlayerInfo) {
+              List<Object> packetData = (List<Object>)RankListener.this.playerInfo.get(packet);
+              List<PacketPlayOutPlayerInfo.PlayerInfoData> newInfoList = new ArrayList<>();
+              for (Object data : packetData) {
+                PacketPlayOutPlayerInfo.PlayerInfoData playerInfoData = (PacketPlayOutPlayerInfo.PlayerInfoData)data;
+                UUID playerID = playerInfoData.a().getId();
+                try {
+                  PacketPlayOutPlayerInfo testPack = (PacketPlayOutPlayerInfo)packet;
+                  if (RankListener.this.rM.doesPlayerHaveRank(Bukkit.getPlayer(playerID))) {
+                    String rank = (String)RankListener.this.main.getConfig().get("users." + playerID.toString());
+                    if (rank.equalsIgnoreCase("builder")) {
+                      String name = ChatColor.GOLD + "[" + ChatColor.GREEN + "Builder" + 
+                        ChatColor.GOLD + "]" + ChatColor.WHITE + " " + Bukkit.getPlayer(playerID).getName();
+                      GameProfile profile = new GameProfile(playerInfoData.a().getId(), name);
+                      EnumGamemode gm = playerInfoData.c();
+                      int idk = playerInfoData.b();
+                      IChatBaseComponent chatStuff = playerInfoData.d();
+                      testPack.getClass();
+                      PacketPlayOutPlayerInfo.PlayerInfoData newData = testPack.new PacketPlayOutPlayerInfo.PlayerInfoData(profile, idk, gm, chatStuff);
+                      newInfoList.add(newData);
+                      receiver.sendMessage(newData.toString());
+                      continue;
+                    } 
+                    if (rank.equalsIgnoreCase("admin")) {
+                      String name = ChatColor.GOLD + "[" + ChatColor.RED + "Admin" + 
+                        ChatColor.GOLD + "]" + ChatColor.WHITE + " " + Bukkit.getPlayer(playerID).getName();
+                      GameProfile profile = new GameProfile(playerInfoData.a().getId(), name);
+                      EnumGamemode gm = playerInfoData.c();
+                      int idk = playerInfoData.b();
+                      IChatBaseComponent chatStuff = playerInfoData.d();
+                      testPack.getClass();
+                      PacketPlayOutPlayerInfo.PlayerInfoData newData = testPack.new PacketPlayOutPlayerInfo.PlayerInfoData(profile, idk, gm, chatStuff);
+                      newInfoList.add(newData);
+                      receiver.sendMessage(newData.toString());
+                    } 
+                  } 
+                } catch (NullPointerException e) {
+                  receiver.sendMessage("something broke.");
+                } 
+              } 
+              if (newInfoList.size() > 0)
+                RankListener.this.playerInfo.set(packet, newInfoList); 
+            } 
+            return super.onPacketOutAsync(receiver, channel, packet);
+          }
+        };
+    }
+    */

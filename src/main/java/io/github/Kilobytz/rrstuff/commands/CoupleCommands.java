@@ -68,8 +68,8 @@ public class CoupleCommands implements TabExecutor {
                     UUID p2UUID = player2Add.getUniqueId();
                     pC.setCouple(p1UUID, p2UUID);
                     sender.sendMessage(player1AddRaw + " and " + player2AddRaw + " have been coupled!");
-                    player1Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p1UUID).getName());
-                    player2Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p2UUID).getName());
+                    player1Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p2UUID).getName());
+                    player2Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p1UUID).getName());
 
                     if(pC.getAddSync()) {
                         pC.syncStats(player2Add);

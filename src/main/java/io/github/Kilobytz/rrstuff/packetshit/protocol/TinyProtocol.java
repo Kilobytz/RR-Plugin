@@ -1,6 +1,5 @@
-package io.github.kilobytz.sa.misc;
+package io.github.Kilobytz.rrstuff.packetshit.protocol;
 
-import io.github.kilobytz.sa.misc.Reflection;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
@@ -29,8 +28,8 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import io.github.kilobytz.sa.misc.Reflection.FieldAccessor;
-import io.github.kilobytz.sa.misc.Reflection.MethodInvoker;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.Reflection.FieldAccessor;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.Reflection.MethodInvoker;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.mojang.authlib.GameProfile;

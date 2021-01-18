@@ -20,14 +20,13 @@ public class VanishListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         List<UUID> playersVanished = new ArrayList<>(vanishInit.getVanishedPlayers());
-        LivingEntity collideP = event.getPlayer();
         if(playersVanished.contains(event.getPlayer().getUniqueId())) {
-            collideP.setCollidable(false);
+            ((LivingEntity)event.getPlayer()).setCollidable(false);
             event.getPlayer().sendMessage("You are vanished!");
             event.setJoinMessage(null);
         }
         else {
-            collideP.setCollidable(true);
+            ((LivingEntity)event.getPlayer()).setCollidable(true);
         }
     }
     @EventHandler

@@ -3,7 +3,6 @@ version: 1.2
 author: Kilobytes
 main: io.github.Kilobytz.rrstuff.Main
 description: Plugin made by Kilobytes, requested by Nambo for the Random Randos Minecraft server, for Minecraft version 1.12.2
-depend: [ProtocolLib]
 commands:
   couple:
     description: main command for couple commands

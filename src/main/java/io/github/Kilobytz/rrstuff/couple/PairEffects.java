@@ -1,6 +1,7 @@
 package io.github.Kilobytz.rrstuff.couple;
 
 import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -15,8 +16,6 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
 
-import java.util.UUID;
-
 public class PairEffects implements Listener {
 
     PairConstructor pC;
@@ -30,17 +29,15 @@ public class PairEffects implements Listener {
         if (dmgEvent.getEntity() instanceof Player) {
             Player dmgedPlayer = (Player) dmgEvent.getEntity();
             double dmg = dmgEvent.getFinalDamage();
-            boolean coupleCheck = pC.isPlayerCoupled(dmgedPlayer);
-            if(coupleCheck) {
+            if(pC.isPlayerCoupled(dmgedPlayer)) {
                 Player couple = pC.getCoupleOpposite(dmgedPlayer);
-                if (pC.checkSoloCouple(couple)) {
+                if (pC.checkCoupleOnline(couple)) {
                     double hpToSet = dmgedPlayer.getHealth() - dmg;
                     if (hpToSet < 0) {
                         couple.setHealth(0);
                         return;
                     }
                     couple.setHealth(hpToSet);
-                    sendDmgEffect(couple);
                 }
             }
         }
@@ -49,21 +46,22 @@ public class PairEffects implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player playerJoining = event.getPlayer();
-        boolean coupleCheck = pC.isPlayerCoupled(playerJoining);
-        if(coupleCheck) {
-            Player couple = pC.getCoupleOpposite(playerJoining);
-            if (pC.checkSoloCouple(couple)) {
-                double maxHP = pC.getMaxHP();
-                playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+        if(pC.isPlayerCoupled(playerJoining)) {
+            playerJoining.sendMessage("first check true");
+            if (pC.checkCoupleOnline(pC.getCoupleOpposite(playerJoining))) {
+                playerJoining.sendMessage("second check true");
+                playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(pC.getMaxHP());
                 pC.syncStats(playerJoining);
                 return;
             }
         }
-        double hp = playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        if(hp > 20) {
-            playerJoining.setFoodLevel(20);
-            playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
-            playerJoining.setHealth(20);
+        else{
+            double hp = playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            if(hp > 20) {
+                playerJoining.setFoodLevel(20);
+                playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                playerJoining.setHealth(20);
+            }
         }
     }
     @EventHandler
@@ -72,7 +70,7 @@ public class PairEffects implements Listener {
         boolean coupleCheck = pC.isPlayerCoupled(playerRespawning);
         if(coupleCheck) {
             Player couple = pC.getCoupleOpposite(playerRespawning);
-            if (pC.checkSoloCouple(couple)) {
+            if (pC.checkCoupleOnline(couple)) {
                 pC.syncStats(playerRespawning);
             }
         }
@@ -83,7 +81,7 @@ public class PairEffects implements Listener {
         boolean coupleCheck = pC.isPlayerCoupled(playerChangingGamemode);
         if(coupleCheck) {
             Player couple = pC.getCoupleOpposite(playerChangingGamemode);
-            if(pC.checkSoloCouple(couple)) {
+            if(pC.checkCoupleOnline(couple)) {
                 GameMode newMode = event.getNewGameMode();
                 GameMode survival = GameMode.SURVIVAL;
                 GameMode adventure = GameMode.ADVENTURE;
@@ -101,14 +99,14 @@ public class PairEffects implements Listener {
             boolean coupleCheck = pC.isPlayerCoupled(healedPlayer);
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(healedPlayer);
-                if(pC.checkSoloCouple(couple)){
+                if(pC.checkCoupleOnline(couple)){
                     double hpToSet = couple.getHealth() + heal;
                     double maxHP = pC.getMaxHP();
                     if(hpToSet > maxHP){
                         hpToSet = maxHP;
                     }
                     couple.setHealth(hpToSet);
-                    sendDmgEffect(couple);
+                    
                 }
             }
 
@@ -125,9 +123,9 @@ public class PairEffects implements Listener {
             boolean coupleCheck = pC.isPlayerCoupled(hungerPlayer);
             if(coupleCheck) {
                 Player couple = pC.getCoupleOpposite(hungerPlayer);
-                if(pC.checkSoloCouple(couple)) {
+                if(pC.checkCoupleOnline(couple)) {
                     int playerFood = hungerPlayer.getFoodLevel();
-                    int coupleFood = couple.getFoodLevel();
+                    //int coupleFood = couple.getFoodLevel();
                     float saturation = Float.intBitsToFloat(playerFood);
                     couple.setFoodLevel(foodEventFood);
                     hungerPlayer.setFoodLevel(foodEventFood);
@@ -138,10 +136,10 @@ public class PairEffects implements Listener {
         }
     }
 
-    public void sendDmgEffect(Player player) {
-        net.minecraft.server.v1_12_R1.Entity entity = ((CraftPlayer) player).getHandle();
+    public void sendDmgEffect(Player player1, Player player2) {
+        net.minecraft.server.v1_12_R1.Entity entity = ((CraftPlayer) player1).getHandle();
         PacketPlayOutAnimation dmg = new PacketPlayOutAnimation(entity,1);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(dmg);
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_HURT,1,1);
+        ((CraftPlayer) player2).getHandle().playerConnection.sendPacket(dmg);
+        player2.playSound(player1.getLocation(), Sound.ENTITY_PLAYER_HURT,1,1);
     }
 }

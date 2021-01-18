@@ -60,7 +60,7 @@ public class Main  extends JavaPlugin {
         vL.setVanishData(vI);
         gC.setSnowballInfo(sD);
         gC.setMoleListener(mL);
-        vI.vanishStart();
+        //vI.vanishStart();
         startLoaderTimer();
 
     }

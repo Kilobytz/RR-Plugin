@@ -25,10 +25,8 @@ public class Couple {
         return false;
     }
     public boolean contains(Player player) {
-        if(player == null) {
-            return false;
-        }
-        if(player.getUniqueId() == couple1 || player.getUniqueId() == couple2) {
+        player.sendMessage("breakpoint internal");
+        if (player.getUniqueId() == couple1 || player.getUniqueId() == couple2) {
             return true;
         }
         return false;
@@ -45,13 +43,11 @@ public class Couple {
 
     public Player getCoupleOfPlayer(Player player) {
         if (couple1 == player.getUniqueId()) {
-                Player player2 = Bukkit.getPlayer(couple2);
-                return player2;
-            }
-            if (couple2 == player.getUniqueId()) {
-                Player player1 = Bukkit.getPlayer(couple1);
-                return player1;
-            }
+            return Bukkit.getPlayer(couple2);
+        }
+        if (couple2 == player.getUniqueId()) {
+            return Bukkit.getPlayer(couple1);
+        }
         return null;
     }
 
@@ -81,11 +77,9 @@ public class Couple {
     }
     public String getName(UUID uuid) {
         if(isUserOnline(uuid)) {
-            String name = Bukkit.getPlayer(uuid).getName();
-            return name;
+            return Bukkit.getPlayer(uuid).getName();
         }
-        String name = Bukkit.getOfflinePlayer(uuid).getName();
-        return name;
+        return Bukkit.getOfflinePlayer(uuid).getName();
     }
     public UUID getPlayer1() {
         return couple1;
