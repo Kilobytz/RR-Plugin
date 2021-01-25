@@ -19,18 +19,12 @@ public class Couple {
         this.couple2 = player2.getUniqueId();
     }
     public boolean contains(UUID uuid) {
-        if(uuid == couple1 || uuid == couple2) {
+        if(uuid.equals(couple1) || uuid.equals(couple2)) {
             return true;
         }
         return false;
     }
-    public boolean contains(Player player) {
-        player.sendMessage("breakpoint internal");
-        if (player.getUniqueId() == couple1 || player.getUniqueId() == couple2) {
-            return true;
-        }
-        return false;
-    }
+
     public void remove(Player player) {
         couple1 = null;
         couple2 = null;
@@ -42,27 +36,27 @@ public class Couple {
     }
 
     public Player getCoupleOfPlayer(Player player) {
-        if (couple1 == player.getUniqueId()) {
+        if (couple1.equals(player.getUniqueId())) {
             return Bukkit.getPlayer(couple2);
         }
-        if (couple2 == player.getUniqueId()) {
+        if (couple2.equals(player.getUniqueId())) {
             return Bukkit.getPlayer(couple1);
         }
         return null;
     }
 
     public UUID getCoupleOfUUID(UUID uuid) {
-        if (couple1 == uuid) {
+        if (couple1.equals(uuid)) {
             return couple2;
         }
-        if (couple2 == uuid) {
+        if (couple2.equals(uuid) {
             return couple1;
         }
         return null;
     }
     public boolean isUserOnline(UUID uuid) {
         for(Player player : Bukkit.getOnlinePlayers()) {
-            if(player.getUniqueId() == uuid) {
+            if(player.getUniqueId().equals(uuid)) {
                 return true;
             }
         }
@@ -83,5 +77,8 @@ public class Couple {
     }
     public UUID getPlayer1() {
         return couple1;
+    }
+    public UUID getPlayer2() {
+        return couple2;
     }
 }

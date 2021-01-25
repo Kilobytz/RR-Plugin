@@ -2,6 +2,8 @@ package io.github.Kilobytz.rrstuff.couple;
 
 import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
 
+import java.io.Console;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -26,6 +28,7 @@ public class PairEffects implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent dmgEvent) {
+        
         if (dmgEvent.getEntity() instanceof Player) {
             Player dmgedPlayer = (Player) dmgEvent.getEntity();
             double dmg = dmgEvent.getFinalDamage();
@@ -47,9 +50,7 @@ public class PairEffects implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player playerJoining = event.getPlayer();
         if(pC.isPlayerCoupled(playerJoining)) {
-            playerJoining.sendMessage("first check true");
-            if (pC.checkCoupleOnline(pC.getCoupleOpposite(playerJoining))) {
-                playerJoining.sendMessage("second check true");
+            if (pC.checkCoupleOnline(playerJoining)) {
                 playerJoining.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(pC.getMaxHP());
                 pC.syncStats(playerJoining);
                 return;

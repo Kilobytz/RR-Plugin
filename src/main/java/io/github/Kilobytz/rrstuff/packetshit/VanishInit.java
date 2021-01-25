@@ -18,6 +18,7 @@ import io.github.Kilobytz.rrstuff.packetshit.protocol.TinyProtocol;
 import io.netty.channel.Channel;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.PlayerInfoData;
 
 public class VanishInit {
 
@@ -36,16 +37,18 @@ public class VanishInit {
 
 
 
-    /*public void vanishStart() {
+    public void vanishStart() {
         this.protocol = new TinyProtocol((Plugin)this.main) {
             public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
               if (packet instanceof PacketPlayOutPlayerInfo) {
+                List<Object> packetData = (List<Object>)VanishInit.this.playerInfo.get(packet);
                   if(!((EnumPlayerInfoAction)VanishInit.this.packetEnum.get(packet)).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
-                      if(((PacketPlayOutPlayerInfo.PlayerInfoData)VanishInit.this.playerInfo.get(packet)).a().getId().equals(receiver.getUniqueId()) ||
+                          PlayerInfoData pData = (PlayerInfoData) packetData.get(0);
+                      if(pData.a().getId().equals(receiver.getUniqueId()) ||
                       vanishedPlayers.contains(receiver.getUniqueId())) {
                           return super.onPacketOutAsync(receiver, channel, packet);
                         }
-                        if(vanishedPlayers.contains(((PacketPlayOutPlayerInfo.PlayerInfoData)VanishInit.this.playerInfo.get(packet)).a().getId())) {
+                        if(vanishedPlayers.contains(pData.a().getId())) {
                             return null;
                         }
                     }
@@ -54,7 +57,7 @@ public class VanishInit {
             }
         };
     }
-    */
+    
 
     public String getUUID(String packetData) {
         Pattern pattern = Pattern.compile("\\[id=(\\w{8}(?:-\\w{4}){3}-\\w{12})");
