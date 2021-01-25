@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 
 public class SnowballDeath implements Listener {
     Main main;
@@ -22,12 +22,11 @@ public class SnowballDeath implements Listener {
     }
 
     @EventHandler
-    public void snowballDeath(EntityDamageByEntityEvent event) {
-        if(event.getDamager() instanceof Snowball) {
-            if(event.getEntity() instanceof Player) {
-                if(enabled) {
-                    ((Player) event.getEntity()).setHealth(0);
-                }
+    public void snowballDeath(ProjectileHitEvent event) {
+        if(event.getEntity() instanceof Snowball && event.getHitEntity() instanceof Player) {
+            if(enabled) {
+                ((Player) event.getEntity()).setHealth(0);
+                
             }
         }
     }

@@ -1,25 +1,24 @@
 package io.github.Kilobytz.rrstuff.couple;
 
-import io.github.Kilobytz.rrstuff.Main;
-import javafx.util.Pair;
+import static org.bukkit.Bukkit.getServer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
-import static org.bukkit.Bukkit.getServer;
+import io.github.Kilobytz.rrstuff.Main;
 
 public class PairConstructor {
 
     private final Main main;
 
 
-    List<Couple> coupleList = new ArrayList<>();
+    final List<Couple> coupleList = new ArrayList<>();
     private boolean coupleHunger;
     private double maxHP;
     private boolean addSync;
@@ -45,21 +44,11 @@ public class PairConstructor {
         Couple coupled = new Couple();
         coupled.setCouple(player1UUID,player2UUID);
         coupleList.add(coupled);
-        Player player1 = getPlayerObject(player1UUID);
-        Player player2 = getPlayerObject(player2UUID);
-        player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
-        player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+        getPlayerObject(player1UUID).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
+        getPlayerObject(player2UUID).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
     }
 
-    public Couple getCoupleInstance(Player player) {
-        for(Couple coupleInstance : coupleList) {
-            if(coupleInstance.contains(player)) {
-                return coupleInstance;
-            }
-        }
-        return null;
-    }
-
+    
     public Couple getCoupleInstance(UUID uuid) {
         for(Couple coupleInstance : coupleList) {
             if(coupleInstance.contains(uuid)) {
@@ -78,14 +67,6 @@ public class PairConstructor {
             return Bukkit.getPlayer(uuid).getName();
         }
         return getServer().getOfflinePlayer(uuid).getName();
-    }
-    public Player getCoupleOpposite(Player player1) {
-        Couple coupleInst = getCoupleInstance(player1);
-        return coupleInst.getCoupleOfPlayer(player1);
-    }
-    public UUID getCoupleOppositeUUID(UUID player1UUID) {
-        Couple coupleInst = getCoupleInstance(player1UUID);
-        return coupleInst.getCoupleOfUUID(player1UUID);
     }
     public void removeCouple(UUID player1UUID) {
         Couple coupleRemove = getCoupleInstance(player1UUID);
@@ -120,27 +101,19 @@ public class PairConstructor {
     }
     public boolean isPlayerCoupled(Player player) {
 
-        Couple newInst = getCoupleInstance(player);
+        Couple newInst = getCoupleInstance(player.getUniqueId());
         if(newInst == null) {
-            return false;
-        }
-        if(newInst.getCoupleOfPlayer(player) == null) {
             return false;
         }
         return true;
     }
     public String getCoupleStatement(int coupleNumber) {
         Couple coupleSet = coupleList.get(coupleNumber);
-        UUID p1 = coupleSet.getPlayer1();
-        UUID p2 = coupleSet.getCoupleOfUUID(p1);
-        String player1Name = getDisplayNameFromUUID(p1);
-        String player2Name = getDisplayNameFromUUID(p2);
-        return "Players: " + player1Name + " and " + player2Name + ".";
+        return "Players: " + getDisplayNameFromUUID(coupleSet.getPlayer1()) + " and " + getDisplayNameFromUUID(coupleSet.getCoupleOfUUID(coupleSet.getPlayer1())) + ".";
     }
 
     public UUID getCouple1FromNum(int coupleNum) {
-        Couple coupleSet = coupleList.get(coupleNum);
-        return coupleSet.getPlayer1();
+        return (coupleList.get(coupleNum)).getPlayer1();
 
     }
 
@@ -149,8 +122,7 @@ public class PairConstructor {
     }
 
     public boolean isUserOnline(UUID uuid) {
-        Couple coupleInt = getCoupleInstance(uuid);
-        return coupleInt.isUserOnline(uuid);
+        return (getCoupleInstance(uuid)).isUserOnline(uuid);
     }
 
     public boolean areCouplesEmpty() {
@@ -169,30 +141,26 @@ public class PairConstructor {
         main.getConfig().set("CoupleMaxHP = " , num);
         main.saveConfig();
         for(Couple couple : coupleList) {
-
             UUID player1UUID = couple.getPlayer1();
             UUID player2UUID = couple.getCoupleOfUUID(player1UUID);
             Player player1 = getPlayerObject(player1UUID);
             Player player2 = getPlayerObject(player2UUID);
             if (isUserOnline(player1UUID)) {
-                double p1HP = player1.getHealth();
                 player1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
-                if(p1HP > num) {
+                if(player1.getHealth() > num) {
                     player1.setHealth(num);
                 }
                 if (isUserOnline(player2UUID)) {
-                    double p2HP = player2.getHealth();
                     player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
-                    if(p2HP > num) {
+                    if(player2.getHealth() > num) {
                         player2.setHealth(num);
                         return;
                     }
                 }
             }
             if (isUserOnline(player2UUID)) {
-                double p2HP = player2.getHealth();
                 player2.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHP);
-                if(p2HP > num) {
+                if(player2.getHealth() > num) {
                     player2.setHealth(num);
                 }
             }
@@ -212,43 +180,56 @@ public class PairConstructor {
         return coupleHunger;
     }
 
-    public void syncStats(final Player player) {
-            final Player couple = getCoupleOpposite(player);
+    public void syncStats(Player player) {
+        try{
+            Couple coupleInst = getCoupleInstance(player.getUniqueId());
+            Player couple = coupleInst.getCoupleOfPlayer(player);
+            Bukkit.getConsoleSender().sendMessage(couple.toString());
             if (!couple.isOnline()) {
                 return;
             }
             if (couple.isDead()) {
                 return;
             }
-            final double hpToSet = couple.getHealth();
-            Bukkit.getScheduler().runTaskLater(main, new Runnable() {
 
-                public void run() {
-                    player.setHealth(hpToSet);
-                    boolean hunger = getHunger();
-                    if (hunger) {
-                        int hungerToSet = couple.getFoodLevel();
-                        player.setFoodLevel(hungerToSet);
+                    player.setHealth(couple.getHealth());
+                    if (getHunger()) {
+                        player.setFoodLevel(couple.getFoodLevel());
                     }
+                }catch(NullPointerException e) {
+                    Bukkit.getConsoleSender().sendMessage("error. sync failed.");
                 }
-            }, 1L);
+
 
     }
-    public boolean checkSoloCouple(Player couple) {
+
+    public Player getCoupleOpposite(Player player) {
+        try{
+            Couple coupleInst = getCoupleInstance(player.getUniqueId());
+            return coupleInst.getCoupleOfPlayer(player);
+        }catch(NullPointerException e) {
+            Bukkit.getConsoleSender().sendMessage("Error in opposite fetching.");
+            return null;
+        }
+
+    }
+
+    public boolean checkCoupleOnline(Player player) {
         try {
+            Couple coupleInst = getCoupleInstance(player.getUniqueId());
+            Player couple = coupleInst.getCoupleOfPlayer(player);
+            Bukkit.getConsoleSender().sendMessage(couple.toString());
             if (!couple.isOnline()) {
                 return false;
             }
             if (couple.isDead()) {
                 return false;
             }
-            GameMode creative = GameMode.CREATIVE;
-            GameMode spectator = GameMode.SPECTATOR;
-            GameMode playerGamemode = couple.getGameMode();
-            if (playerGamemode.equals(creative)) {
+            if (couple.getGameMode().equals(GameMode.CREATIVE) || couple.getGameMode().equals(GameMode.SPECTATOR)) {
                 return false;
             }
-            return !playerGamemode.equals(spectator);
+            
+            return true;
         }catch(NullPointerException e) {
             return false;
         }

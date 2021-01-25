@@ -1,5 +1,6 @@
 package io.github.Kilobytz.rrstuff.commands;
 
+import io.github.Kilobytz.rrstuff.couple.Couple;
 import io.github.Kilobytz.rrstuff.couple.PairConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -68,8 +69,8 @@ public class CoupleCommands implements TabExecutor {
                     UUID p2UUID = player2Add.getUniqueId();
                     pC.setCouple(p1UUID, p2UUID);
                     sender.sendMessage(player1AddRaw + " and " + player2AddRaw + " have been coupled!");
-                    player1Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p1UUID).getName());
-                    player2Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p2UUID).getName());
+                    player1Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p2UUID).getName());
+                    player2Add.sendMessage("You have been coupled to " + Bukkit.getPlayer(p1UUID).getName());
 
                     if(pC.getAddSync()) {
                         pC.syncStats(player2Add);
@@ -121,7 +122,8 @@ public class CoupleCommands implements TabExecutor {
                         int pairNumbers = pC.getLengthOfArray();
                         for (int i = 0; i < pairNumbers; ++i) {
                             UUID player1UUID = pC.getCouple1FromNum(i);
-                            UUID player2UUID = pC.getCoupleOppositeUUID(player1UUID);
+                            Couple instOfCouple = pC.getCoupleInstance(player1UUID);
+                            UUID player2UUID = instOfCouple.getCoupleOfUUID(player1UUID);
                             String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
                             String player2Name = getServer().getOfflinePlayer(player2UUID).getName();
 
@@ -149,22 +151,22 @@ public class CoupleCommands implements TabExecutor {
                         }
                     }
                     String player1RemoveRaw = args[1];
-                    Player player1Remove = getPlayerExact(player1RemoveRaw);
-                    if(player1Remove == null) {
+                    UUID player1UUID = (getPlayerExact(player1RemoveRaw)).getUniqueId();
+                    if(player1UUID == null) {
                         sender.sendMessage(String.format("%sError. Invalid player.", ChatColor.RED));
                         return true;
                     }
-                    if(!pC.isPlayerCoupled(player1Remove)) {
+                    if(!pC.isPlayerCoupled(Bukkit.getPlayer(player1UUID))) {
                         sender.sendMessage(String.format("%sError. Player is not coupled.", ChatColor.RED));
                         return true;
                     }
-                    UUID player1UUID = pC.getCouple1FromPlayer(player1Remove);
-                    UUID player2UUID = pC.getCoupleOppositeUUID(player1UUID);
+                    Couple instCouple = pC.getCoupleInstance(player1UUID);
+                    UUID player2UUID = instCouple.getCoupleOfUUID(player1UUID);
                     String player1Name = getServer().getOfflinePlayer(player1UUID).getName();
                     String player2Name = getServer().getOfflinePlayer(player2UUID).getName();
-                    player1Remove.sendMessage("You have been uncoupled from " + player2Name);
+                    Bukkit.getPlayer(player1UUID).sendMessage("You have been uncoupled!");
                     if (pC.isUserOnline(player2UUID)) {
-                            Player player2Remove = pC.getCoupleOpposite(player1Remove);
+                            Player player2Remove = Bukkit.getPlayer(player2UUID);
                             player2Remove.sendMessage("You have been uncoupled from " + player1Name);
                             sender.sendMessage("Player "+ player1Name + " and " + player2Name + " couple has been dissolved.");
                             pC.removeCouple(player1UUID);
@@ -212,6 +214,7 @@ public class CoupleCommands implements TabExecutor {
                         sender.sendMessage(String.format("%sError. Specified player is not coupled.", ChatColor.RED));
                         return true;
                     }
+                    
                     Player playerSync2 = pC.getCoupleOpposite(playerSync1);
                     pC.syncStats(playerSync2);
                     sender.sendMessage(player1Raw + " has been re-synced");
@@ -233,16 +236,6 @@ public class CoupleCommands implements TabExecutor {
                         sender.sendMessage("Syncing on add is disabled");
                         return true;
                     }
-
-                case "dmg" :
-                    
-
-                case "about" :
-                    sender.sendMessage("This plugin was created by Kilobytes, requested and theorized by Nambo.");
-                    sender.sendMessage("Big thanks to yhousegaming, Shadow, Null and Fiters for bug and beta testing.");
-                    sender.sendMessage("If you discover any bugs or have any feature request, contact me at Kilobytes#8095 on Discord, or at:");
-                    sender.sendMessage("https://github.com/Kilobytz/RR-Plugin");
-                    return true;
 
                 default:
                     sender.sendMessage(String.format("%sInvalid usage. Do /couple to list all Couple commands.", ChatColor.RED));
@@ -283,19 +276,12 @@ public class CoupleCommands implements TabExecutor {
                                 }
                             }
                         } else {
-                            for (String entry : booleanTypes) {
-                                coupleSubCom.add(entry);
-                            }
+                            coupleSubCom.addAll(booleanTypes);
                         }
                         return coupleSubCom;
                     case "list" :
-                        if(coupleSubCom.size() == 0) {
-                            return coupleSubCom;
-                    }
                     case "health" :
-                        if(coupleSubCom.size() == 0) {
                             return coupleSubCom;
-                        }
                     default :
                         return null;
                 }

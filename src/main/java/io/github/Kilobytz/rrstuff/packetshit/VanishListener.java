@@ -1,5 +1,6 @@
 package io.github.Kilobytz.rrstuff.packetshit;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -20,10 +21,13 @@ public class VanishListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         List<UUID> playersVanished = new ArrayList<>(vanishInit.getVanishedPlayers());
         if(playersVanished.contains(event.getPlayer().getUniqueId())) {
+            ((LivingEntity)event.getPlayer()).setCollidable(false);
             event.getPlayer().sendMessage("You are vanished!");
             event.setJoinMessage(null);
         }
-
+        else {
+            ((LivingEntity)event.getPlayer()).setCollidable(true);
+        }
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {

@@ -2,7 +2,7 @@ package io.github.Kilobytz.rrstuff.loader;
 
 import io.github.Kilobytz.rrstuff.Main;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
+//import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -38,7 +38,7 @@ public class LoaderInit {
 
 
     public void entityCheck() {
-        Server server = main.getServer();
+        //Server server = main.getServer();
 
         addOnlinePlayers();
         Player player1;

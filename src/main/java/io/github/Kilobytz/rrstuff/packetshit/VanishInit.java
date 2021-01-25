@@ -1,74 +1,63 @@
 package io.github.Kilobytz.rrstuff.packetshit;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.FieldAccessException;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.PlayerInfoData;
-import io.github.Kilobytz.rrstuff.Main;
-import io.github.Kilobytz.rrstuff.packetshit.wrapperstuff.WrapperPlayServerPlayerInfo;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import io.github.Kilobytz.rrstuff.Main;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.Reflection;
+import io.github.Kilobytz.rrstuff.packetshit.protocol.TinyProtocol;
+import io.netty.channel.Channel;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.PlayerInfoData;
+
 public class VanishInit {
 
     Main main;
     private final List<UUID> vanishedPlayers = new ArrayList<>();
+    TinyProtocol protocol;
+    private Class<?> playerInfoClass = Reflection.getClass("{nms}.PacketPlayOutPlayerInfo");
+    private Reflection.FieldAccessor<List> playerInfo = Reflection.getField(this.playerInfoClass, "b", List.class);
+    private Reflection.FieldAccessor<?> packetEnum = Reflection.getField(this.playerInfoClass, "a", EnumPlayerInfoAction.class);
 
     public VanishInit(Main main) {
         this.main=main;
+        
     }
 
 
 
 
     public void vanishStart() {
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(
-
-                main,
-                ListenerPriority.NORMAL,
-                PacketType.Play.Server.PLAYER_INFO) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                try {
-                    PacketContainer packet = event.getPacket();
-                    WrapperPlayServerPlayerInfo wPacket = new WrapperPlayServerPlayerInfo(packet);
-                    EnumWrappers.PlayerInfoAction packetAction = wPacket.getAction();
-                    List<PlayerInfoData> playerIDs = new ArrayList<>(wPacket.getData());
-                    if(packetAction.equals(EnumWrappers.PlayerInfoAction.ADD_PLAYER) ||packetAction.equals(EnumWrappers.PlayerInfoAction.UPDATE_LATENCY)) {
-                        String rawUUID = getUUID(playerIDs.get(0).toString());
-                        UUID uuid = UUID.fromString(rawUUID);
-                        if(uuid.equals(event.getPlayer().getUniqueId())) {
-                            return;
+        this.protocol = new TinyProtocol((Plugin)this.main) {
+            public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
+              if (packet instanceof PacketPlayOutPlayerInfo) {
+                List<Object> packetData = (List<Object>)VanishInit.this.playerInfo.get(packet);
+                  if(!((EnumPlayerInfoAction)VanishInit.this.packetEnum.get(packet)).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
+                          PlayerInfoData pData = (PlayerInfoData) packetData.get(0);
+                      if(pData.a().getId().equals(receiver.getUniqueId()) ||
+                      vanishedPlayers.contains(receiver.getUniqueId())) {
+                          return super.onPacketOutAsync(receiver, channel, packet);
                         }
-                        UUID recipientID = event.getPlayer().getUniqueId();
-                        if(vanishedPlayers.contains(recipientID)) {
-                            return;
-                        }
-                        if(vanishedPlayers.contains(uuid)) {
-                            event.setCancelled(true);
-                            return;
+                        if(vanishedPlayers.contains(pData.a().getId())) {
+                            return null;
                         }
                     }
-                }catch(FieldAccessException e) {
-                    e.printStackTrace();
-                    Bukkit.getServer().getConsoleSender().sendMessage("shit broke yo");
-                }
+                }   
+                return super.onPacketOutAsync(receiver, channel, packet);
             }
-        });
+        };
     }
+    
 
     public String getUUID(String packetData) {
         Pattern pattern = Pattern.compile("\\[id=(\\w{8}(?:-\\w{4}){3}-\\w{12})");
@@ -82,12 +71,12 @@ public class VanishInit {
 
     public void vanishPlayer(Player player) {
         vanishedPlayers.add(player.getUniqueId());
-        net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
-        PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,nmsPlayer);
+        PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, ((CraftPlayer) player).getHandle());
+        ((LivingEntity)player).setCollidable(false);
         for(Player allPlayers : Bukkit.getOnlinePlayers()) {
             if(!vanishedPlayers.contains(allPlayers.getUniqueId())) {
                 ((CraftPlayer) allPlayers).getHandle().playerConnection.sendPacket(vanish);
-                allPlayers.hidePlayer(player);
+                allPlayers.hidePlayer(main,player);
             }
             else {
                 vanishIntoState(player, allPlayers);
@@ -97,12 +86,12 @@ public class VanishInit {
     }
     public void unvanishPlayer(Player player) {
         vanishedPlayers.remove(player.getUniqueId());
-        net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
-        PacketPlayOutPlayerInfo unvanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,nmsPlayer);
+        PacketPlayOutPlayerInfo unvanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, ((CraftPlayer) player).getHandle());
+        ((LivingEntity)player).setCollidable(true);
         for(Player allPlayers : Bukkit.getOnlinePlayers()) {
             if(!vanishedPlayers.contains(allPlayers.getUniqueId())) {
                 ((CraftPlayer) allPlayers).getHandle().playerConnection.sendPacket(unvanish);
-                allPlayers.showPlayer(player);
+                allPlayers.showPlayer(main,player);
             }
             else {
                 vanishOutOfState(player, allPlayers);
@@ -111,16 +100,14 @@ public class VanishInit {
     }
 
     public void vanishIntoState(Player playerVanishing, Player playerToShow) {
-        net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) playerToShow).getHandle();
-        PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,nmsPlayer);
+        PacketPlayOutPlayerInfo vanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,((CraftPlayer) playerToShow).getHandle());
         ((CraftPlayer) playerVanishing).getHandle().playerConnection.sendPacket(vanish);
-        playerVanishing.showPlayer(playerToShow);
+        playerVanishing.showPlayer(main,playerToShow);
     }
     public void vanishOutOfState(Player playerUnVanishing, Player playerToHide) {
-        net.minecraft.server.v1_12_R1.EntityPlayer nmsPlayer = ((CraftPlayer) playerToHide).getHandle();
-        PacketPlayOutPlayerInfo unvanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,nmsPlayer);
+        PacketPlayOutPlayerInfo unvanish = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,((CraftPlayer) playerToHide).getHandle());
         ((CraftPlayer) playerUnVanishing).getHandle().playerConnection.sendPacket(unvanish);
-        playerUnVanishing.hidePlayer(playerToHide);
+        playerUnVanishing.hidePlayer(main,playerToHide);
     }
     public List<UUID> getVanishedPlayers() {
         return vanishedPlayers;
