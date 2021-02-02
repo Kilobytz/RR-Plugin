@@ -1,20 +1,12 @@
 package io.github.Kilobytz.rrstuff.mole;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.FieldAccessException;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.PlayerInfoData;
 import io.github.Kilobytz.rrstuff.Main;
 import io.github.Kilobytz.rrstuff.packetshit.protocol.Reflection;
 import io.github.Kilobytz.rrstuff.packetshit.protocol.TinyProtocol;
 import io.netty.channel.Channel;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.PlayerInfoData;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -243,9 +235,9 @@ public class MoleHandling {
             if (mP1.inRangeCheck(mP2)) {
                 return;
             }
-            PacketPlayOutPlayerInfo render = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,((CraftPlayer) mP1.getMolePlayer()).getHandle());
+            PacketPlayOutPlayerInfo render = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,((CraftPlayer) mP2.getMolePlayer()).getHandle());
             ((CraftPlayer) mP1.getMolePlayer()).getHandle().playerConnection.sendPacket(render);
-            mP2.getMolePlayer().showPlayer(main,mP1.getMolePlayer());
+            mP1.getMolePlayer().showPlayer(main,mP2.getMolePlayer());
             mP1.setRangeCheck(mP2);
         }catch (NullPointerException ignored) {
         }
@@ -261,9 +253,9 @@ public class MoleHandling {
                 }
                 
             }
-            PacketPlayOutPlayerInfo unrender = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,((CraftPlayer) mP1.getMolePlayer()).getHandle());
+            PacketPlayOutPlayerInfo unrender = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,((CraftPlayer) mP2.getMolePlayer()).getHandle());
             ((CraftPlayer) mP1.getMolePlayer()).getHandle().playerConnection.sendPacket(unrender);
-            mP2.getMolePlayer().hidePlayer(main,mP1.getMolePlayer());
+            mP1.getMolePlayer().hidePlayer(main,mP2.getMolePlayer());
             mP1.removeRangeCheck(mP2);
         }catch (NullPointerException ignored) {
         }
@@ -273,11 +265,18 @@ public class MoleHandling {
         this.protocol = new TinyProtocol((Plugin)this.main) {
             public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
               if (packet instanceof PacketPlayOutPlayerInfo) {
-                  if(!((EnumPlayerInfoAction)MoleHandling.this.packetEnum.get(packet)).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
-                      if(getInstanceFromPlayer(receiver) == null) {
-                        return super.onPacketOutAsync(receiver, channel, packet);
-                      }
-                      return null;
+                  List<PlayerInfoData> packetData = (List<PlayerInfoData>) MoleHandling.this.playerInfo.get(packet);
+                  if(!packetEnum.get(packet).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
+                      List<PlayerInfoData> toRemove = new ArrayList<>();
+                      for(PlayerInfoData pData : packetData) {
+                          if(molePlayers.contains(pData.a().getId()) && !molePlayers.contains(receiver.getUniqueId()) 
+                          && !pData.a().getId().equals(receiver.getUniqueId())) {
+                              toRemove.add(pData);
+                            }
+                        }
+                        packetData.removeAll(toRemove);
+                        MoleHandling.this.playerInfo.set(packet, packetData);
+                        return packet;
                     }
                 }   
                 return super.onPacketOutAsync(receiver, channel, packet);

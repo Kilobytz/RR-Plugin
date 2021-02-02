@@ -100,12 +100,15 @@ public class PairConstructor {
         }
     }
     public boolean isPlayerCoupled(Player player) {
-
+        try{
         Couple newInst = getCoupleInstance(player.getUniqueId());
         if(newInst == null) {
             return false;
         }
         return true;
+    }catch(NullPointerException e) {
+        return false;
+    }
     }
     public String getCoupleStatement(int coupleNumber) {
         Couple coupleSet = coupleList.get(coupleNumber);
@@ -184,7 +187,6 @@ public class PairConstructor {
         try{
             Couple coupleInst = getCoupleInstance(player.getUniqueId());
             Player couple = coupleInst.getCoupleOfPlayer(player);
-            Bukkit.getConsoleSender().sendMessage(couple.toString());
             if (!couple.isOnline()) {
                 return;
             }
@@ -218,7 +220,6 @@ public class PairConstructor {
         try {
             Couple coupleInst = getCoupleInstance(player.getUniqueId());
             Player couple = coupleInst.getCoupleOfPlayer(player);
-            Bukkit.getConsoleSender().sendMessage(couple.toString());
             if (!couple.isOnline()) {
                 return false;
             }
