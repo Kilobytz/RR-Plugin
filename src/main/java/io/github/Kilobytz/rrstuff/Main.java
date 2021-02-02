@@ -1,6 +1,7 @@
 package io.github.Kilobytz.rrstuff;
 
 import io.github.Kilobytz.rrstuff.commands.CoupleCommands;
+import io.github.Kilobytz.rrstuff.commands.Swap;
 import io.github.Kilobytz.rrstuff.commands.GeneralCommands;
 import io.github.Kilobytz.rrstuff.couple.PairConstructor;
 import io.github.Kilobytz.rrstuff.couple.PairEffects;
@@ -27,6 +28,7 @@ public class Main  extends JavaPlugin {
     LoaderInit lI = new LoaderInit(this, pluginManager);
     SnowballDeath sD = new SnowballDeath(this);
     MoleListener mL = new MoleListener(this);
+    Swap swap = new Swap(this);
 
     @Override
     public void onEnable() {
@@ -34,6 +36,7 @@ public class Main  extends JavaPlugin {
         registerListeners();
         this.getCommand("couple").setExecutor(this.cC);
         this.getCommand("rr").setExecutor(this.gC);
+        this.getCommand("swap").setExecutor(this.swap);
         setupInit();
     }
 

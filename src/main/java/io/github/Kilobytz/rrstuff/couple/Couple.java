@@ -49,7 +49,7 @@ public class Couple {
         if (couple1.equals(uuid)) {
             return couple2;
         }
-        if (couple2.equals(uuid) {
+        if (couple2.equals(uuid)) {
             return couple1;
         }
         return null;

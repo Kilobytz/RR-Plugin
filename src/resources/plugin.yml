@@ -1,5 +1,5 @@
-name: RR-Plugin
-version: 1.2
+name: RR-Plugin 
+version: ${project.version}
 author: Kilobytes
 main: io.github.Kilobytz.rrstuff.Main
 description: Plugin made by Kilobytes, requested by Nambo for the Random Randos Minecraft server, for Minecraft version 1.12.2
@@ -8,3 +8,6 @@ commands:
     description: main command for couple commands
   rr:
     description: main command for general commands
+  swap:
+    description: swaps two player's positions.
+  

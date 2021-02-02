@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import io.github.Kilobytz.rrstuff.Main;
@@ -35,14 +36,14 @@ public class MoleListener implements Listener {
         moleHandling = null;
     }
 
-    /*
+    
     @EventHandler
     public void onChatEvent(AsyncPlayerChatEvent event) {
         String chat = event.getMessage();
         String name = event.getPlayer().getDisplayName();
+        event.setCancelled(true);
         try {
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
-                event.setCancelled(true);
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
                     if (!playersOnline.equals(event.getPlayer())
                             && playersOnline.getWorld().equals(event.getPlayer().getWorld())
@@ -55,16 +56,13 @@ public class MoleListener implements Listener {
                 return;
             }
         }catch (NullPointerException ignored) {}
-        event.setCancelled(true);
-        for(Player players : Bukkit.getOnlinePlayers()) {
-            players.getPlayer().sendMessage(name +": " + chat);
-        }
+        Bukkit.broadcastMessage("<" + name +"> " + chat);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
         String jM = event.getJoinMessage();
+        event.setJoinMessage(null);
         try{
             if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
                 event.getPlayer().sendMessage(ChatColor.YELLOW + jM);
@@ -78,10 +76,32 @@ public class MoleListener implements Listener {
                         playersOnline.sendMessage(ChatColor.YELLOW + jM);
                 }
             }
-        }catch(NullPointerException e) {
-        }
-            event.getPlayer().sendMessage(ChatColor.YELLOW + jM);
+        }catch(NullPointerException e) {event.setJoinMessage(ChatColor.YELLOW + jM);}
+            
     }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent event) {
+        String kM = event.getLeaveMessage();
+        event.setLeaveMessage(null);
+        try{
+            if (moleHandling.doesMoleContainID(event.getPlayer().getUniqueId())) {
+                event.getPlayer().sendMessage(ChatColor.YELLOW + kM);
+                moleHandling.getInstanceFromPlayer(event.getPlayer()).emptyRangeCheck();
+                for (Player playersOnline : Bukkit.getOnlinePlayers()) {
+                    if (playersOnline.equals(event.getPlayer()) || 
+                    (moleHandling.doesMoleContainID(playersOnline.getUniqueId())
+                    && !moleHandling.checkDistanceRaw(event.getPlayer().getUniqueId(), playersOnline.getUniqueId()))
+                    || !playersOnline.getWorld().equals(event.getPlayer().getWorld())) {
+                        continue;
+                        }
+                        playersOnline.sendMessage(ChatColor.YELLOW + kM);
+                }
+            }
+        }catch(NullPointerException e) {event.setLeaveMessage(ChatColor.YELLOW + kM);}
+        
+    }
+    
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
@@ -101,8 +121,8 @@ public class MoleListener implements Listener {
                         playersOnline.sendMessage(ChatColor.YELLOW + jM);
                 }
             }
-        }catch(NullPointerException e) {}
-        event.setQuitMessage(ChatColor.YELLOW + jM);
+        }catch(NullPointerException e) {event.setQuitMessage(ChatColor.YELLOW + jM);}
+        
     }
 
     @EventHandler
@@ -119,9 +139,9 @@ public class MoleListener implements Listener {
     }catch(NullPointerException e) {
     }
     }
-    */
+    
 
-    /*
+    
     @EventHandler
     public void playerDeath(PlayerDeathEvent event) {
         String jM = event.getDeathMessage();
@@ -145,7 +165,7 @@ public class MoleListener implements Listener {
         }
         event.setDeathMessage(ChatColor.YELLOW + jM);
     }
-    */
+    
 
     /*@EventHandler
     public void switchDim(PlayerChangedWorldEvent event) {
