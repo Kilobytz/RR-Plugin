@@ -6,8 +6,9 @@ Plugin for Nambo for the RR Discord server
 For current unstable build, check testing branch.
 
 # TODO 2.0
-Remake most of molecore.
+Patch up molecore.
 
-Keep fixing couplecore and updating old code.
+Fix any bugs for couples that may be around.
 
-Edit old packet stuff.
+Streamline any old code.
+

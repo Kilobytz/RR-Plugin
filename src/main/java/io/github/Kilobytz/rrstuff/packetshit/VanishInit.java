@@ -19,7 +19,6 @@ import io.netty.channel.Channel;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.PlayerInfoData;
-
 public class VanishInit {
 
     Main main;
@@ -41,16 +40,18 @@ public class VanishInit {
         this.protocol = new TinyProtocol((Plugin)this.main) {
             public Object onPacketOutAsync(Player receiver, Channel channel, Object packet) {
               if (packet instanceof PacketPlayOutPlayerInfo) {
-                List<Object> packetData = (List<Object>)VanishInit.this.playerInfo.get(packet);
-                  if(!((EnumPlayerInfoAction)VanishInit.this.packetEnum.get(packet)).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
-                          PlayerInfoData pData = (PlayerInfoData) packetData.get(0);
-                      if(pData.a().getId().equals(receiver.getUniqueId()) ||
-                      vanishedPlayers.contains(receiver.getUniqueId())) {
-                          return super.onPacketOutAsync(receiver, channel, packet);
+                  List<PlayerInfoData> packetData = (List<PlayerInfoData>) VanishInit.this.playerInfo.get(packet);
+                  if(!packetEnum.get(packet).equals(EnumPlayerInfoAction.REMOVE_PLAYER)) {
+                      List<PlayerInfoData> toRemove = new ArrayList<>();
+                      for(PlayerInfoData pData : packetData) {
+                          if(vanishedPlayers.contains(pData.a().getId()) && !vanishedPlayers.contains(receiver.getUniqueId()) 
+                          && !pData.a().getId().equals(receiver.getUniqueId())) {
+                              toRemove.add(pData);
+                            }
                         }
-                        if(vanishedPlayers.contains(pData.a().getId())) {
-                            return null;
-                        }
+                        packetData.removeAll(toRemove);
+                        VanishInit.this.playerInfo.set(packet, packetData);
+                        return packet;
                     }
                 }   
                 return super.onPacketOutAsync(receiver, channel, packet);
@@ -58,16 +59,6 @@ public class VanishInit {
         };
     }
     
-
-    public String getUUID(String packetData) {
-        Pattern pattern = Pattern.compile("\\[id=(\\w{8}(?:-\\w{4}){3}-\\w{12})");
-        Matcher matcher = pattern.matcher(packetData);
-
-        if(matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
 
     public void vanishPlayer(Player player) {
         vanishedPlayers.add(player.getUniqueId());
