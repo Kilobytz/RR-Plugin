@@ -1,10 +1,5 @@
 package io.github.Kilobytz.rrstuff.couple;
 
-import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
-
-import java.io.Console;
-
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
@@ -16,7 +11,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+
+import net.minecraft.server.v1_12_R1.PacketPlayOutAnimation;
 
 public class PairEffects implements Listener {
 
@@ -116,10 +115,10 @@ public class PairEffects implements Listener {
 
     }
     @EventHandler
-    public void onHungerLoss(FoodLevelChangeEvent foodLossEvent) {
-        Entity rawHunger = foodLossEvent.getEntity();
+    public void onHungerLoss(FoodLevelChangeEvent foodEvent) {
+        Entity rawHunger = foodEvent.getEntity();
         if(rawHunger instanceof Player) {
-            int foodEventFood = foodLossEvent.getFoodLevel();
+            int foodEventFood = foodEvent.getFoodLevel();
             Player hungerPlayer = ((Player) rawHunger).getPlayer();
             boolean coupleCheck = pC.isPlayerCoupled(hungerPlayer);
             if(coupleCheck) {
@@ -127,11 +126,8 @@ public class PairEffects implements Listener {
                 if(pC.checkCoupleOnline(couple)) {
                     int playerFood = hungerPlayer.getFoodLevel();
                     //int coupleFood = couple.getFoodLevel();
-                    float saturation = Float.intBitsToFloat(playerFood);
                     couple.setFoodLevel(foodEventFood);
                     hungerPlayer.setFoodLevel(foodEventFood);
-                    hungerPlayer.setSaturation(saturation);
-                    couple.setSaturation(saturation);
                 }
             }
         }
@@ -143,4 +139,8 @@ public class PairEffects implements Listener {
         ((CraftPlayer) player2).getHandle().playerConnection.sendPacket(dmg);
         player2.playSound(player1.getLocation(), Sound.ENTITY_PLAYER_HURT,1,1);
     }
+
+
+    
 }
+
