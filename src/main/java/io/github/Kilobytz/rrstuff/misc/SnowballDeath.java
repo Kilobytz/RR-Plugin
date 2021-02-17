@@ -44,7 +44,7 @@ public class SnowballDeath implements Listener {
     public void snowballHit(EntityDamageByEntityEvent event) {
         if(event.getCause() == DamageCause.PROJECTILE){
             if(event.getDamager() instanceof Snowball){
-                if(event.getEntity() instanceof Player){
+                if(event.getEntity() instanceof Player && enabled == true){
                     event.setDamage(100);
                 }
             }

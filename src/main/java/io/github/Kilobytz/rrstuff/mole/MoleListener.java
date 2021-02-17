@@ -148,7 +148,7 @@ public class MoleListener implements Listener {
         event.setDeathMessage(null);
         try{
             if (moleHandling.doesMoleContainID(event.getEntity().getUniqueId())) {
-                event.getEntity().sendMessage(ChatColor.YELLOW + jM);
+                event.getEntity().sendMessage(jM);
                 for (Player playersOnline : Bukkit.getOnlinePlayers()) {
                     if (playersOnline.equals(event.getEntity()) || 
                     (moleHandling.doesMoleContainID(playersOnline.getUniqueId())
@@ -156,14 +156,14 @@ public class MoleListener implements Listener {
                     || !playersOnline.getWorld().equals(event.getEntity().getWorld())) {
                         continue;
                         }
-                        playersOnline.sendMessage(ChatColor.YELLOW + jM);
+                        playersOnline.sendMessage(jM);
                         
                 }
                 return;
             }
         }catch(NullPointerException e) {
         }
-        event.setDeathMessage(ChatColor.YELLOW + jM);
+        event.setDeathMessage(jM);
     }
     
 
