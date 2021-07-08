@@ -5,10 +5,6 @@ Plugin for Nambo for the RR Discord server
 
 For current unstable build, check testing branch.
 
-# TODO 2.0
-Patch up molecore.
+Very out of date and not worked on.
 
-Fix any bugs for couples that may be around.
-
-Streamline any old code.
-
+For the love of god do not run this.
