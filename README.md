@@ -5,7 +5,6 @@ Plugin for Nambo for the RR Discord server
 
 For current unstable build, check testing branch.
 
-**Very out of date and not worked on.
+**Very out of date and not worked on.**
 
-For the love of god do not run this.
-**
+**For the love of god do not run this.**
